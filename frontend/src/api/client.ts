@@ -4616,6 +4616,29 @@ export interface AuthStatus {
 }
 
 // API functions
+export interface AdditionalCameraInput {
+  friendly_name: string;
+  enabled: boolean;
+  camera_type: 'mjpeg' | 'rtsp' | 'snapshot' | 'usb';
+  camera_url: string;
+  snapshot_url: string | null;
+  rotation: 0 | 90 | 180 | 270;
+}
+
+export interface AdditionalCamera extends AdditionalCameraInput {
+  id: number;
+  printer_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CameraConnectionTestResult {
+  success: boolean;
+  error?: string;
+  resolution?: string | null;
+  coalesced?: boolean;
+}
+
 export const api = {
   // Authentication
   getAuthStatus: () => request<AuthStatus>('/auth/status'),
@@ -4891,6 +4914,16 @@ export const api = {
     request<{ connected: boolean }>(`/printers/${id}/disconnect`, {
       method: 'POST',
     }),
+  getAdditionalCamera: (printerId: number) =>
+    request<AdditionalCamera | null>(`/printers/${printerId}/additional-camera`),
+  saveAdditionalCamera: (printerId: number, data: AdditionalCameraInput) =>
+    request<AdditionalCamera>(`/printers/${printerId}/additional-camera`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteAdditionalCamera: (printerId: number) =>
+    request<void>(`/printers/${printerId}/additional-camera`, { method: 'DELETE' }),
+  testAdditionalCamera: (printerId: number, data: Pick<AdditionalCameraInput, 'camera_type' | 'camera_url'>) =>
+    request<CameraConnectionTestResult>(`/printers/${printerId}/additional-camera/test`, { method: 'POST', body: JSON.stringify(data) }),
+  getUsbCameras: () =>
+    request<{ cameras: { device: string; name: string; capabilities: string[] }[] }>('/printers/usb-cameras'),
   testExternalCamera: (printerId: number, url: string, cameraType: string) =>
     // `coalesced` is true when the frame came from a capture that was already
     // running (Obico polling, a snapshot) rather than a connection this test

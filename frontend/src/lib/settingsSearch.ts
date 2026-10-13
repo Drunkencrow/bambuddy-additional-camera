@@ -9,6 +9,7 @@
 // next to it — no central index to forget to update.
 
 export type SettingsSearchTab =
+  | 'additional-cameras'
   | 'general'
   | 'plugs'
   | 'sensors'

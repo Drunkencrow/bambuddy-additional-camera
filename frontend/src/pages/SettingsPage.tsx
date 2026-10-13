@@ -1,3 +1,4 @@
+import { AdditionalCameraSettings } from '../components/AdditionalCameraSettings';
 import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus, Plug, AlertTriangle, RotateCcw, Bell, Download, RefreshCw, ExternalLink, Globe, Droplets, Thermometer, FileText, Edit2, Pencil, Send, CheckCircle, XCircle, History, Trash2, Zap, TrendingUp, Calendar, DollarSign, Power, PowerOff, Key, Copy, Database, X, Shield, Printer, Cylinder, Wifi, Home, Video, Users, Lock, Unlock, ChevronDown, Save, Mail, Flame, Layers, ListOrdered, Code, Search, Scale, Settings as SettingsIcon, ScanEye, Cog, QrCode, Heart, Briefcase, Workflow, UploadCloud, MonitorPlay } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -66,7 +67,7 @@ import type { UsersSubTab } from '../lib/settingsSearch';
 import { availableEngines, hasEngineChoice, resolveEngine, type SliceEngineId } from '../lib/sliceEngines';
 import { NumberInput } from '../components/NumberInput';
 
-const validTabs = ['general', 'plugs', 'sensors', 'notifications', 'queue', 'filament', 'network', 'apikeys', 'virtual-printer', 'spoolbuddy', 'failure-detection', 'users', 'backup'] as const;
+const validTabs = ['additional-cameras', 'general', 'plugs', 'sensors', 'notifications', 'queue', 'filament', 'network', 'apikeys', 'virtual-printer', 'spoolbuddy', 'failure-detection', 'users', 'backup'] as const;
 type TabType = typeof validTabs[number];
 
 // Cross-tab search registrations for cards rendered inline in this file.
@@ -1578,7 +1579,7 @@ export function SettingsPage() {
                 >
                   <p className="text-sm text-white">{entry.label}</p>
                   <p className="text-xs text-bambu-gray">
-                    {t(`settings.tabs.${entry.tab === 'virtual-printer' ? 'virtualPrinter' : entry.tab === 'failure-detection' ? 'failureDetection' : entry.tab}`)}
+                    {entry.tab === 'additional-cameras' ? t('settings.tabs.additionalCameras', 'Additional Cameras') : t(`settings.tabs.${entry.tab === 'virtual-printer' ? 'virtualPrinter' : entry.tab === 'failure-detection' ? 'failureDetection' : entry.tab}`)}
                     {entry.subTab ? ` › ${t(`settings.tabs.${entry.subTab}`, entry.subTab)}` : ''}
                   </p>
                 </button>
@@ -1606,6 +1607,13 @@ export function SettingsPage() {
         >
           <SettingsIcon className="w-4 h-4 shrink-0" />
           {t('settings.tabs.general')}
+        </button>
+        <button
+          onClick={() => handleTabChange('additional-cameras')}
+          className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px lg:border-b-0 lg:border-l-2 lg:-ml-px lg:mb-0 lg:justify-start flex items-center gap-2 ${activeTab === 'additional-cameras' ? 'text-bambu-green border-bambu-green' : 'text-bambu-gray hover:text-gray-900 dark:hover:text-white border-transparent'}`}
+        >
+          <Video className="w-4 h-4 shrink-0" />
+          {t('settings.tabs.additionalCameras', 'Additional Cameras')}
         </button>
         <button
           onClick={() => handleTabChange('plugs')}
@@ -1774,6 +1782,8 @@ export function SettingsPage() {
         </button>
       </nav>
       <div className="flex-1 min-w-0">
+      {activeTab === 'additional-cameras' && <AdditionalCameraSettings />}
+
       {activeTab === 'general' && (
       <>
       {/* Sponsor banner — independence callout, or the commercial ask on a

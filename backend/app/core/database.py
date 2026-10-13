@@ -288,6 +288,7 @@ async def init_db():
     from backend.app.models import (  # noqa: F401
         active_print_session,
         active_print_spoolman,
+        additional_camera,
         ams_history,
         ams_label,
         announcement,

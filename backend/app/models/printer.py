@@ -50,6 +50,9 @@ class Printer(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
+    additional_camera: Mapped["AdditionalCamera | None"] = relationship(
+        back_populates="printer", cascade="all, delete-orphan", uselist=False
+    )
     archives: Mapped[list["PrintArchive"]] = relationship(back_populates="printer", cascade="all, delete-orphan")
     smart_plugs: Mapped[list["SmartPlug"]] = relationship(back_populates="printer")
     notification_providers: Mapped[list["NotificationProvider"]] = relationship(back_populates="printer")
@@ -64,6 +67,7 @@ class Printer(Base):
     ha_sensors: Mapped[list["PrinterHASensor"]] = relationship(back_populates="printer", cascade="all, delete-orphan")
 
 
+from backend.app.models.additional_camera import AdditionalCamera  # noqa: E402
 from backend.app.models.ams_history import AMSSensorHistory  # noqa: E402
 from backend.app.models.archive import PrintArchive  # noqa: E402
 from backend.app.models.kprofile_note import KProfileNote  # noqa: E402

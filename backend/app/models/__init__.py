@@ -1,3 +1,4 @@
+from backend.app.models.additional_camera import AdditionalCamera
 from backend.app.models.ams_history import AMSSensorHistory
 from backend.app.models.ams_label import AmsLabel
 from backend.app.models.announcement import Announcement, AnnouncementRead
@@ -47,6 +48,7 @@ from backend.app.models.user_otp_code import UserOTPCode
 from backend.app.models.user_totp import UserTOTP
 
 __all__ = [
+    "AdditionalCamera",
     "Printer",
     "PrintArchive",
     "Filament",
