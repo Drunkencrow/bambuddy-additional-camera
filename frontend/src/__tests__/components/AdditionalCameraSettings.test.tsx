@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdditionalCameraSettings } from '../../components/AdditionalCameraSettings';
 import { api } from '../../api/client';
@@ -32,15 +32,20 @@ const saved = {
   updated_at: '',
 };
 
-async function selectPrinter() {
+function renderSettings() {
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
       <AdditionalCameraSettings />
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
+}
+
+async function selectPrinter() {
+  renderSettings();
   await screen.findByRole('option', { name: 'Printer one' });
   fireEvent.change(screen.getByLabelText('Printer'), { target: { value: '1' } });
   await screen.findByLabelText('Friendly Name');
+  expect(api.saveAdditionalCamera).not.toHaveBeenCalled();
 }
 
 beforeEach(() => {
@@ -71,6 +76,10 @@ describe('AdditionalCameraSettings', () => {
     fireEvent.change(screen.getByLabelText('Rotation'), { target: { value: '90' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByText('Additional Camera saved');
+    expect(screen.getByRole('region', { name: 'Printer one' })).toBeTruthy();
+    expect(screen.queryByRole('option', { name: 'Printer one' })).toBeNull();
+    expect(screen.getByRole('option', { name: 'Printer two' })).toBeTruthy();
+    expect(screen.getByLabelText('Friendly Name')).toHaveValue(saved.friendly_name);
     expect(api.saveAdditionalCamera).toHaveBeenCalledWith(1, {
       friendly_name: 'Side view',
       enabled: true,
@@ -81,19 +90,86 @@ describe('AdditionalCameraSettings', () => {
     });
   });
 
-  it('loads, edits, removes, and clears the form when switching printers', async () => {
+  it('renders configured cards, filters the selector, and returns removed printers immediately', async () => {
     vi.mocked(api.getAdditionalCamera).mockImplementation(async (id) => (id === 1 ? saved : null));
-    await selectPrinter();
-    expect(screen.getByLabelText('Friendly Name')).toHaveValue('Side view');
-    fireEvent.click(screen.getByRole('button', { name: 'Remove Camera' }));
+    renderSettings();
+    const card = within(await screen.findByRole('region', { name: 'Printer one' }));
+    expect(card.getByLabelText('Friendly Name')).toHaveValue('Side view');
+    expect(screen.queryByRole('option', { name: 'Printer one' })).toBeNull();
+    expect(screen.getByRole('option', { name: 'Printer two' })).toBeTruthy();
+    fireEvent.click(card.getByRole('button', { name: 'Remove Camera' }));
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
-    await screen.findByText('Additional Camera removed');
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Printer one' })).toBeNull());
+    expect(screen.getByRole('option', { name: 'Printer one' })).toBeTruthy();
     expect(api.deleteAdditionalCamera).toHaveBeenCalledWith(1);
     expect(api.saveAdditionalCamera).not.toHaveBeenCalled();
-    expect(screen.getByLabelText('Friendly Name')).toHaveValue('');
-    fireEvent.change(screen.getByLabelText('Printer'), { target: { value: '2' } });
-    await waitFor(() => expect(api.getAdditionalCamera).toHaveBeenCalledWith(2));
-    expect(await screen.findByLabelText('Friendly Name')).toHaveValue('');
+  });
+
+  it('keeps multiple cards and their edits, enabled values, tests, and USB lists independent', async () => {
+    vi.mocked(api.getAdditionalCamera).mockImplementation(async (id) => ({
+      ...saved,
+      printer_id: id,
+      friendly_name: id === 1 ? 'Side view' : 'Overhead',
+      enabled: id === 1,
+    }));
+    vi.mocked(api.testAdditionalCamera).mockResolvedValue({ success: true });
+    renderSettings();
+    const first = within(await screen.findByRole('region', { name: 'Printer one' }));
+    const second = within(await screen.findByRole('region', { name: 'Printer two' }));
+    expect(screen.getByLabelText('Printer')).toBeDisabled();
+    expect(screen.getByRole('option', { name: 'No remaining printers available to configure' })).toBeTruthy();
+    expect(screen.queryByRole('option', { name: 'Printer one' })).toBeNull();
+    expect(screen.queryByRole('option', { name: 'Printer two' })).toBeNull();
+    fireEvent.change(first.getByLabelText('Friendly Name'), { target: { value: 'Draft one' } });
+    fireEvent.click(first.getByLabelText('Enabled'));
+    expect(second.getByLabelText('Friendly Name')).toHaveValue('Overhead');
+    expect(second.getByLabelText('Enabled')).not.toBeChecked();
+    fireEvent.click(second.getByLabelText('Enabled'));
+    expect(first.getByLabelText('Enabled')).not.toBeChecked();
+    fireEvent.change(first.getByLabelText('Camera URL'), { target: { value: 'rtsp://draft/live' } });
+    fireEvent.click(first.getByRole('button', { name: 'Test Camera' }));
+    await waitFor(() =>
+      expect(api.testAdditionalCamera).toHaveBeenCalledWith(1, {
+        camera_type: 'rtsp',
+        camera_url: 'rtsp://draft/live',
+      }),
+    );
+    expect(second.queryByText('Camera connection successful')).toBeNull();
+    fireEvent.change(second.getByLabelText('Friendly Name'), { target: { value: 'Draft two' } });
+    fireEvent.click(first.getByRole('button', { name: 'Save' }));
+    await first.findByText('Additional Camera saved');
+    expect(second.getByLabelText('Friendly Name')).toHaveValue('Draft two');
+    expect(second.getByLabelText('Enabled')).toBeChecked();
+    fireEvent.change(first.getByLabelText('Camera Type'), { target: { value: 'usb' } });
+    fireEvent.change(second.getByLabelText('Camera Type'), { target: { value: 'usb' } });
+    await first.findByText('USB camera');
+    await second.findByText('USB camera');
+    expect(first.getByLabelText('USB Device').getAttribute('list')).toBe('additional-camera-usb-1');
+    expect(second.getByLabelText('USB Device').getAttribute('list')).toBe('additional-camera-usb-2');
+  });
+
+  it('keeps unsaved printers available when saving fails', async () => {
+    vi.mocked(api.saveAdditionalCamera).mockRejectedValue(new Error('Save failed'));
+    await selectPrinter();
+    fireEvent.change(screen.getByLabelText('Friendly Name'), { target: { value: 'Draft' } });
+    fireEvent.change(screen.getByLabelText('Camera URL'), { target: { value: 'http://cam/live' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('Save failed');
+    expect(screen.queryByText('Configured Additional Cameras')).toBeNull();
+    expect(screen.getByRole('option', { name: 'Printer one' })).toBeTruthy();
+    expect(screen.getByLabelText('Friendly Name')).toHaveValue('Draft');
+  });
+
+  it('keeps configured cards when removal fails', async () => {
+    vi.mocked(api.getAdditionalCamera).mockImplementation(async (id) => (id === 1 ? saved : null));
+    vi.mocked(api.deleteAdditionalCamera).mockRejectedValue(new Error('Remove failed'));
+    renderSettings();
+    const card = within(await screen.findByRole('region', { name: 'Printer one' }));
+    fireEvent.click(card.getByRole('button', { name: 'Remove Camera' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    await card.findByText('Remove failed');
+    expect(card.getByLabelText('Friendly Name')).toHaveValue('Side view');
+    expect(screen.queryByRole('option', { name: 'Printer one' })).toBeNull();
   });
 
   it('discovers USB devices and displays test failure', async () => {

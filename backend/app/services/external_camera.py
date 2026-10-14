@@ -879,6 +879,7 @@ async def generate_mjpeg_stream(
     on_process: Callable[[asyncio.subprocess.Process], None] | None = None,
     on_frame: Callable[[bytes], None] | None = None,
     stop_event: asyncio.Event | None = None,
+    rotation: int = 0,
 ) -> AsyncGenerator[bytes, None]:
     """Generator yielding MJPEG frames for streaming.
 
@@ -903,6 +904,7 @@ async def generate_mjpeg_stream(
             option but to open a competing handle on a single-reader device.
             Exceptions are logged and swallowed: buffering must never be able
             to break the live stream.
+        rotation: Optional clockwise output rotation; zero preserves original bytes.
         stop_event: When set, the reconnect loops stop retrying — so an explicit
             stop (which kills the current ffmpeg) doesn't immediately respawn a
             new process and reacquire the device.
@@ -913,8 +915,12 @@ async def generate_mjpeg_stream(
     frame_interval = 1.0 / max(fps, 1)
     last_frame_time = 0.0
 
-    def _publish(frame: bytes) -> bytes:
+    async def _publish(frame: bytes) -> bytes:
         """Hand the raw frame to on_frame, then format it for the wire."""
+        if rotation:
+            from backend.app.services.camera import apply_camera_rotation
+
+            frame = await asyncio.to_thread(apply_camera_rotation, frame, rotation, logger)
         if on_frame is not None:
             try:
                 on_frame(frame)
@@ -962,7 +968,7 @@ async def generate_mjpeg_stream(
                 current_time = asyncio.get_event_loop().time()
                 if current_time - last_frame_time >= frame_interval:
                     last_frame_time = current_time
-                    yield _publish(frame)
+                    yield await _publish(frame)
 
     elif camera_type == "rtsp":
         # Use ffmpeg to convert RTSP to MJPEG, reconnecting after routine drops.
@@ -970,12 +976,13 @@ async def generate_mjpeg_stream(
             _reconnecting(lambda: _stream_rtsp(url, fps, on_process=on_process), "RTSP")
         ) as frames:
             async for frame in frames:
-                yield _publish(frame)
+                yield await _publish(frame)
 
     elif camera_type == "usb":
         # Use ffmpeg to stream from USB camera
-        async for frame in _stream_usb(url, fps, on_process=on_process):
-            yield _publish(frame)
+        async with contextlib.aclosing(_stream_usb(url, fps, on_process=on_process)) as frames:
+            async for frame in frames:
+                yield await _publish(frame)
 
     elif camera_type == "snapshot":
         # Poll snapshot URL at interval
@@ -983,7 +990,7 @@ async def generate_mjpeg_stream(
             try:
                 frame = await _capture_snapshot(url, timeout=10)
                 if frame:
-                    yield _publish(frame)
+                    yield await _publish(frame)
                 await asyncio.sleep(frame_interval)
             except asyncio.CancelledError:
                 break

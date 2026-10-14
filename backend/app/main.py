@@ -10215,6 +10215,10 @@ PUBLIC_API_PATTERNS = [
     # Camera (streams loaded via <img> tag)
     "/camera/stream",  # /printers/{id}/camera/stream
     "/camera/snapshot",  # /printers/{id}/camera/snapshot
+    # Independent additional-camera media/status validate the same stream token.
+    "/additional-camera/stream",
+    "/additional-camera/snapshot",
+    "/additional-camera/status",
     # Streaming-overlay status feed (#2613): OBS loads /overlay/{id} with no login
     # and this backs it, authenticated by an ``overlay``-scoped token in the query
     # string (same reasoning as the camera streams above — no header to carry a

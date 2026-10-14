@@ -1965,6 +1965,11 @@ async def cleanup_orphaned_streams():
 
     active_pids |= _active_capture_pids
 
+    # Additional cameras own their sessions outside all primary-camera registries.
+    from backend.app.services.additional_camera import active_process_ids
+
+    active_pids |= active_process_ids()
+
     # 1. /proc scan — catch ALL orphaned Bambu ffmpeg processes on the system.
     #    Any ffmpeg with rtsp(s)://bblp: that is NOT in an active stream is orphaned.
     for pid in _scan_bambu_ffmpeg_pids():

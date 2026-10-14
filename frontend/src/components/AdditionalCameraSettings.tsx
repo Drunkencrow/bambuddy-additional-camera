@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import type { AdditionalCamera, AdditionalCameraInput, CameraConnectionTestResult } from '../api/client';
@@ -34,7 +34,7 @@ function CameraForm({
 }: {
   printerId: number;
   initial: AdditionalCamera | null;
-  onSaved: () => Promise<unknown>;
+  onSaved: (camera: AdditionalCamera | null) => void;
 }) {
   const { t } = useTranslation();
   const [form, setForm] = useState<AdditionalCameraInput>(initial ?? empty);
@@ -73,7 +73,7 @@ function CameraForm({
             const saved = await api.saveAdditionalCamera(printerId, form);
             setForm(saved);
             setExists(true);
-            await onSaved();
+            onSaved(saved);
             setMessage({ success: true, text: t('additionalCameras.saved', 'Additional Camera saved') });
           });
         }}
@@ -115,7 +115,7 @@ function CameraForm({
               value={form.camera_url}
               maxLength={500}
               required
-              list={form.camera_type === 'usb' ? 'additional-camera-usb' : undefined}
+              list={form.camera_type === 'usb' ? `additional-camera-usb-${printerId}` : undefined}
               placeholder={
                 form.camera_type === 'usb' ? '/dev/video0' : form.camera_type === 'rtsp' ? 'rtsp://…' : 'http://…'
               }
@@ -124,7 +124,7 @@ function CameraForm({
           </label>
           {form.camera_type === 'usb' && (
             <>
-              <datalist id="additional-camera-usb">
+              <datalist id={`additional-camera-usb-${printerId}`}>
                 {usb.data?.cameras.map((camera) => (
                   <option key={camera.device} value={camera.device}>
                     {camera.name}
@@ -178,7 +178,7 @@ function CameraForm({
                     await api.testAdditionalCamera(printerId, {
                       camera_type: form.camera_type,
                       camera_url: form.camera_url,
-                    })
+                    }),
                   );
                 })
               }
@@ -225,7 +225,7 @@ function CameraForm({
               setForm(empty);
               setExists(false);
               setTest(null);
-              await onSaved();
+              onSaved(null);
               setMessage({ success: true, text: t('additionalCameras.removed', 'Additional Camera removed') });
             });
           }}
@@ -241,11 +241,17 @@ export function AdditionalCameraSettings() {
   const canModify = !authEnabled || hasPermission('printers:update');
   const [printerId, setPrinterId] = useState<number | null>(null);
   const printers = useQuery({ queryKey: ['printers'], queryFn: api.getPrinters });
-  const camera = useQuery({
-    queryKey: ['additional-camera', printerId],
-    queryFn: () => api.getAdditionalCamera(printerId!),
-    enabled: printerId !== null && canModify,
+  const queryClient = useQueryClient();
+  const cameras = useQueries({
+    queries: (printers.data ?? []).map((printer) => ({
+      queryKey: ['additional-camera', printer.id],
+      queryFn: () => api.getAdditionalCamera(printer.id),
+      enabled: canModify,
+    })),
   });
+  const availablePrinters = (printers.data ?? []).filter((_, index) => cameras[index]?.data === null);
+  const configuredPrinters = (printers.data ?? []).filter((_, index) => !!cameras[index]?.data);
+  const loading = printers.isLoading || (canModify && cameras.some((camera) => camera.isPending));
   return (
     <Card id="card-additional-cameras">
       <CardHeader>
@@ -261,17 +267,21 @@ export function AdditionalCameraSettings() {
             className={inputClass}
             value={printerId ?? ''}
             onChange={(e) => setPrinterId(e.target.value ? Number(e.target.value) : null)}
-            disabled={!canModify}
+            disabled={!canModify || loading || availablePrinters.length === 0}
           >
-            <option value="">{t('additionalCameras.selectPrinter', 'Select a printer')}</option>
-            {printers.data?.map((printer) => (
+            <option value="">
+              {!loading && printers.data?.length && configuredPrinters.length === printers.data.length
+                ? t('additionalCameras.noAvailablePrinters', 'No remaining printers available to configure')
+                : t('additionalCameras.selectPrinter', 'Select a printer')}
+            </option>
+            {availablePrinters.map((printer) => (
               <option key={printer.id} value={printer.id}>
                 {printer.name}
               </option>
             ))}
           </select>
         </label>
-        {printers.isLoading && <p role="status">{t('common.loading', 'Loading…')}</p>}
+        {loading && <p role="status">{t('common.loading', 'Loading…')}</p>}
         {printers.isError && <p role="alert">{t('additionalCameras.printersError', 'Failed to load printers')}</p>}
         {printers.data?.length === 0 && (
           <p>{t('additionalCameras.noPrinters', 'Add a printer to configure an additional camera.')}</p>
@@ -279,20 +289,46 @@ export function AdditionalCameraSettings() {
         {!canModify && (
           <p role="alert">{t('additionalCameras.permission', 'Printer modification permission is required.')}</p>
         )}
-        {printerId !== null &&
-          canModify &&
-          (camera.isPending ? (
-            <p role="status">{t('common.loading', 'Loading…')}</p>
-          ) : camera.isError ? (
-            <p role="alert">
-              {t('additionalCameras.loadError', 'Failed to load camera configuration')}{' '}
-              <Button variant="secondary" onClick={() => void camera.refetch()}>
-                {t('common.retry', 'Retry')}
-              </Button>
-            </p>
-          ) : (
-            <CameraForm key={printerId} printerId={printerId} initial={camera.data ?? null} onSaved={camera.refetch} />
-          ))}
+        {canModify && cameras.some((camera) => camera.isError) && (
+          <p role="alert">
+            {t('additionalCameras.loadError', 'Failed to load camera configuration')}{' '}
+            <Button
+              variant="secondary"
+              onClick={() => {
+                cameras.filter((camera) => camera.isError).forEach((camera) => void camera.refetch());
+              }}
+            >
+              {t('common.retry', 'Retry')}
+            </Button>
+          </p>
+        )}
+        {configuredPrinters.length > 0 && (
+          <h3 className="text-lg font-semibold">
+            {t('additionalCameras.configured', 'Configured Additional Cameras')}
+          </h3>
+        )}
+        {canModify &&
+          printers.data?.map((printer, index) => {
+            const initial = cameras[index]?.data;
+            if (!initial && !(initial === null && printer.id === printerId)) return null;
+            return (
+              <Card key={printer.id} role="region" aria-label={printer.name}>
+                <CardHeader>
+                  <h3 className="text-lg font-semibold">{printer.name}</h3>
+                </CardHeader>
+                <CardContent>
+                  <CameraForm
+                    printerId={printer.id}
+                    initial={initial ?? null}
+                    onSaved={(saved) => {
+                      queryClient.setQueryData(['additional-camera', printer.id], saved);
+                      if (printerId === printer.id) setPrinterId(null);
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            );
+          })}
       </CardContent>
     </Card>
   );
