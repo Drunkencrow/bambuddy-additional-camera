@@ -1,3 +1,4 @@
+import { useOpenEmbeddedCameras } from '../hooks/useOpenEmbeddedCameras';
 import { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { compareFwVersions } from '../utils/firmwareVersion';
@@ -170,6 +171,7 @@ import { Button } from '../components/Button';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { BulkPrinterToolbar, type PrinterState } from '../components/BulkPrinterToolbar';
 import { FileManagerModal } from '../components/FileManagerModal';
+import { AdditionalCameraTestEntry } from '../components/AdditionalCameraTestEntry';
 import { EmbeddedCameraViewer } from '../components/EmbeddedCameraViewer';
 import { CameraWall } from '../components/CameraWall';
 import { ContextMenu, type ContextMenuItem } from '../components/ContextMenu';
@@ -8880,28 +8882,7 @@ export function PrintersPage() {
   );
   // Embedded camera viewer state - supports multiple simultaneous viewers
   // Persisted to localStorage so cameras reopen after navigation
-  const [embeddedCameraPrinters, setEmbeddedCameraPrinters] = useState<Map<number, { id: number; name: string }>>(() => {
-    const saved = localStorage.getItem('openEmbeddedCameras');
-    if (saved) {
-      try {
-        const cameras = JSON.parse(saved) as Array<{ id: number; name: string }>;
-        return new Map(cameras.map(c => [c.id, c]));
-      } catch {
-        return new Map();
-      }
-    }
-    return new Map();
-  });
-
-  // Persist open cameras to localStorage when they change
-  useEffect(() => {
-    const cameras = Array.from(embeddedCameraPrinters.values());
-    if (cameras.length > 0) {
-      localStorage.setItem('openEmbeddedCameras', JSON.stringify(cameras));
-    } else {
-      localStorage.removeItem('openEmbeddedCameras');
-    }
-  }, [embeddedCameraPrinters]);
+  const [embeddedCameraPrinters, setEmbeddedCameraPrinters] = useOpenEmbeddedCameras<{ id: number; name: string }>('primary');
 
   const { data: printers, isLoading } = useQuery({
     queryKey: ['printers'],
@@ -10110,6 +10091,8 @@ export function PrintersPage() {
           onCancel={() => setBulkConfirmAction(null)}
         />
       )}
+
+      <AdditionalCameraTestEntry />
 
       {/* Embedded Camera Viewers - multiple viewers can be open simultaneously */}
       {Array.from(embeddedCameraPrinters.values()).map((camera, index) => (

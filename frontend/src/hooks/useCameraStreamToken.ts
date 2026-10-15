@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   api,
@@ -15,7 +15,7 @@ import { useAuth } from '../contexts/AuthContext';
  *  Everything else under /api/v1/ that a browser loads as an element src is
  *  media and takes the media token (#3025). */
 export function isCameraUrl(src: string): boolean {
-  return src.includes('/camera/');
+  return src.includes('/camera/') || src.includes('/additional-camera/');
 }
 
 /**
@@ -37,6 +37,8 @@ export function rewriteMediaSrcWithToken(
       'img[src*="/api/v1/"], video[src*="/api/v1/"]'
     )
     .forEach((el) => {
+      // Reactive viewers own their src/token, including local token renewal.
+      if (el.hasAttribute('data-camera-token-managed')) return;
       const src = el.getAttribute('src') || '';
       const token = isCameraUrl(src) ? cameraToken : mediaToken;
       if (!token) return;
@@ -141,6 +143,9 @@ export function useStreamTokenSync() {
       if (!(el instanceof HTMLImageElement || el instanceof HTMLVideoElement)) return;
 
       const src = el.src || '';
+      // Additional viewers check authenticated status themselves. A transport
+      // failure there must not refresh every primary viewer's shared token.
+      if (src.includes('/additional-camera/')) return;
       const camera = isCameraUrl(src);
       const token = camera ? getStreamToken() : getMediaToken();
       if (!token || !src.includes(`token=${encodeURIComponent(token)}`)) return;
@@ -171,6 +176,37 @@ export function useStreamTokenSync() {
  */
 export function useCameraStreamToken() {
   return { withToken: withStreamToken };
+}
+
+/** Read the shared token initially, but renew locally so Retry cannot reload other viewers. */
+export function useCameraStreamAccess() {
+  const { authEnabled, loading, user, hasPermission } = useAuth();
+  const allowed = !loading && (!authEnabled || (!!user && hasPermission('camera:view')));
+  const query = useQuery({
+    queryKey: ['camera-stream-token', user?.id ?? null],
+    queryFn: () => api.getCameraStreamToken(),
+    enabled: allowed,
+    staleTime: 50 * 60 * 1000,
+    retry: false,
+  });
+  const owner = user?.id ?? null;
+  const [renewed, setRenewed] = useState<{ owner: number | null; token: string; sharedToken?: string } | null>(null);
+  const token = renewed?.owner === owner && renewed.sharedToken === query.data?.token ? renewed.token : query.data?.token;
+  const renew = async () => {
+    if (!allowed) return;
+    try {
+      // Same authenticated Bambuddy endpoint/scope, without publishing into
+      // the app-wide cache whose DOM sync would reconnect primary streams.
+      const data = await api.getCameraStreamToken();
+      setRenewed({ owner, token: data.token, sharedToken: query.data?.token });
+    } catch { /* The viewer remains unavailable and can retry again. */ }
+  };
+  return {
+    token,
+    ready: allowed && (!!token || (!authEnabled && !query.isPending)),
+    unavailable: !loading && (!allowed || (authEnabled && query.isError && !token)),
+    renew,
+  };
 }
 
 /**

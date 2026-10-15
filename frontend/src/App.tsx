@@ -15,6 +15,7 @@ import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { FileManagerPage } from './pages/FileManagerPage';
 import { LibraryTrashPage } from './pages/LibraryTrashPage';
 import { CameraPage } from './pages/CameraPage';
+import { AdditionalCameraPage } from './pages/AdditionalCameraPage';
 import { CamWallPage } from './pages/CamWallPage';
 import { StreamOverlayPage } from './pages/StreamOverlayPage';
 import { ExternalLinkPage } from './pages/ExternalLinkPage';
@@ -187,6 +188,7 @@ function App() {
 
                 {/* Camera page - standalone, no layout, no WebSocket (doesn't need real-time updates) */}
                 <Route path="/camera/:printerId" element={<CameraPage />} />
+                <Route path="/camera/:printerId/additional" element={<ProtectedRoute><AdditionalCameraPage /></ProtectedRoute>} />
 
                 {/* Stream overlay page - standalone for OBS/streaming embeds, no auth required */}
                 <Route path="/overlay/:printerId" element={<StreamOverlayPage />} />

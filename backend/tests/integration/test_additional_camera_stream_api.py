@@ -127,12 +127,23 @@ async def test_status_does_not_open_transport(async_client, printer_factory):
         assert response.json() == {
             "configured": False,
             "enabled": False,
+            "friendly_name": None,
             "active_sessions": 0,
             "frames_recent": False,
             "last_frame_age_seconds": None,
         }
         transport.assert_not_called()
     assert (await async_client.get(path(999999) + "/status")).status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_status_exposes_friendly_name_without_source_credentials(async_client, printer_factory):
+    printer = await save(async_client, printer_factory)
+    response = await async_client.get(path(printer.id) + "/status")
+    assert response.status_code == 200
+    assert response.json()["friendly_name"] == PAYLOAD["friendly_name"]
+    assert "camera_url" not in response.json()
+    assert "snapshot_url" not in response.json()
 
 
 @pytest.mark.asyncio
@@ -308,3 +319,41 @@ async def test_user_without_camera_view_cannot_mint_token(async_client):
     login = await async_client.post("/api/v1/auth/login", json={"username": "nocamera", "password": "ViewerPass1!"})
     restricted = {"Authorization": f"Bearer {login.json()['access_token']}"}
     assert (await async_client.post("/api/v1/printers/camera/stream-token", headers=restricted)).status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_camera_viewer_can_read_title_without_configuration_permission(async_client, printer_factory):
+    printer = await save(async_client, printer_factory)
+    await async_client.post(
+        "/api/v1/auth/setup",
+        json={"auth_enabled": True, "admin_username": "viewerowner", "admin_password": "AdminPass1!"},
+    )
+    login = await async_client.post("/api/v1/auth/login", json={"username": "viewerowner", "password": "AdminPass1!"})
+    admin = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    group = await async_client.post(
+        "/api/v1/groups/", headers=admin, json={"name": "Camera only", "permissions": ["camera:view"]}
+    )
+    assert group.status_code == 201
+    user = await async_client.post(
+        "/api/v1/users/",
+        headers=admin,
+        json={"username": "cameraonly", "password": "ViewerPass1!", "group_ids": [group.json()["id"]]},
+    )
+    assert user.status_code == 201
+    login = await async_client.post("/api/v1/auth/login", json={"username": "cameraonly", "password": "ViewerPass1!"})
+    viewer = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    assert (await async_client.get(path(printer.id), headers=viewer)).status_code == 403
+    response = await async_client.post("/api/v1/printers/camera/stream-token", headers=viewer)
+    assert response.status_code == 200
+    token = response.json()["token"]
+    response = await async_client.get(path(printer.id) + "/status?token=" + token)
+    assert response.status_code == 200
+    assert response.json()["friendly_name"] == PAYLOAD["friendly_name"]
+    assert set(response.json()) == {
+        "configured",
+        "enabled",
+        "friendly_name",
+        "active_sessions",
+        "frames_recent",
+        "last_frame_age_seconds",
+    }

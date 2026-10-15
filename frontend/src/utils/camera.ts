@@ -6,13 +6,12 @@
  * chosen per click from the camera button's own menu, and the stored setting
  * survives only as the default a browser starts from.
  */
+import { cameraPopupGeometryKey, cameraPopupName, type CameraSource } from './cameraIdentity';
+
 export type CameraViewMode = 'window' | 'embedded';
 
 /** The mode the last camera button click chose, in this browser. */
 const CAMERA_VIEW_MODE_KEY = 'cameraViewMode';
-
-/** Geometry the camera popup was last left at, written by CameraPage. */
-const CAMERA_WINDOW_STATE_KEY = 'cameraWindowState';
 
 export function isCameraViewMode(value: unknown): value is CameraViewMode {
   return value === 'window' || value === 'embedded';
@@ -52,13 +51,13 @@ export function storeCameraViewMode(mode: CameraViewMode): void {
  * so the browser copies sessionStorage -- which is where the auth token lives
  * -- into the new window. Without it the camera page loads unauthenticated.
  */
-export function openCameraWindow(printerId: number): void {
+export function openCameraWindow(printerId: number, source: CameraSource = 'primary'): void {
   let state: { width?: number; height?: number; left?: number; top?: number } = {
     width: 640,
     height: 400,
   };
   try {
-    const saved = localStorage.getItem(CAMERA_WINDOW_STATE_KEY);
+    const saved = localStorage.getItem(cameraPopupGeometryKey(source, printerId));
     if (saved) {
       const parsed = JSON.parse(saved) as typeof state;
       if (parsed && typeof parsed === 'object') state = parsed;
@@ -78,5 +77,6 @@ export function openCameraWindow(printerId: number): void {
     .filter(Boolean)
     .join(',');
 
-  window.open(`/camera/${printerId}`, `camera-${printerId}`, features);
+  const route = `/camera/${printerId}${source === 'additional' ? '/additional' : ''}`;
+  window.open(route, cameraPopupName(source, printerId), features);
 }

@@ -1,13 +1,17 @@
+import { useFloatingOverlayFocus } from '../hooks/useFloatingOverlayFocus';
+import { CameraMinimizeButton } from './CameraMinimizeButton';
+import { cameraOverlaySize } from './cameraOverlaySize';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { X, RefreshCw, AlertTriangle, Maximize2, Minimize2, GripVertical, WifiOff, ZoomIn, ZoomOut, Fullscreen, Minimize, Stethoscope } from 'lucide-react';
+import { X, RefreshCw, AlertTriangle, GripVertical, WifiOff, ZoomIn, ZoomOut, Fullscreen, Minimize, Stethoscope } from 'lucide-react';
 import { api, getAuthToken, withStreamToken } from '../api/client';
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ChamberLight } from './icons/ChamberLight';
 import { SkipObjectsModal, SkipObjectsIcon } from './SkipObjectsModal';
 import { CameraDiagnoseModal } from './CameraDiagnoseModal';
+import { cameraOverlayGeometryKey, cameraViewerIdentity } from '../utils/cameraIdentity';
 
 interface EmbeddedCameraViewerProps {
   printerId: number;
@@ -16,7 +20,6 @@ interface EmbeddedCameraViewerProps {
   onClose: () => void;
 }
 
-const STORAGE_KEY_PREFIX = 'embeddedCameraState_';
 const MAX_RECONNECT_ATTEMPTS = 5;
 const INITIAL_RECONNECT_DELAY = 2000;
 const MAX_RECONNECT_DELAY = 30000;
@@ -37,13 +40,15 @@ const DEFAULT_STATE: CameraState = {
 };
 
 export function EmbeddedCameraViewer({ printerId, printerName, viewerIndex = 0, onClose }: EmbeddedCameraViewerProps) {
+  const identity = cameraViewerIdentity('primary', printerId);
+  const { zIndex, ...focusHandlers } = useFloatingOverlayFocus(identity);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const { hasPermission } = useAuth();
 
   // Printer-specific storage key
-  const storageKey = `${STORAGE_KEY_PREFIX}${printerId}`;
+  const storageKey = cameraOverlayGeometryKey('primary', printerId);
 
   // Load saved state or use defaults (offset for new viewers without saved state)
   const loadState = (): CameraState => {
@@ -559,13 +564,15 @@ export function EmbeddedCameraViewer({ printerId, printerName, viewerIndex = 0, 
 
   return (
     <div
+      {...focusHandlers}
+      data-camera-overlay={identity}
       ref={containerRef}
       className={`${isFullscreen ? 'fixed inset-0 z-[100]' : 'fixed z-40 rounded-lg shadow-2xl border border-bambu-dark-tertiary'} bg-bambu-dark-secondary overflow-hidden`}
       style={isFullscreen ? undefined : {
+        zIndex,
         left: state.x,
         top: state.y,
-        width: isMinimized ? 200 : state.width,
-        height: isMinimized ? 40 : state.height,
+        ...cameraOverlaySize(isMinimized, state),
         cursor: isDragging ? 'grabbing' : 'default',
       }}
     >
@@ -628,17 +635,7 @@ export function EmbeddedCameraViewer({ printerId, printerName, viewerIndex = 0, 
               <Fullscreen className="w-3.5 h-3.5 text-bambu-gray" />
             )}
           </button>
-          <button
-            onClick={() => setIsMinimized(!isMinimized)}
-            className="p-1 hover:bg-bambu-dark-tertiary rounded"
-            title={isMinimized ? 'Expand' : 'Minimize'}
-          >
-            {isMinimized ? (
-              <Maximize2 className="w-3.5 h-3.5 text-bambu-gray" />
-            ) : (
-              <Minimize2 className="w-3.5 h-3.5 text-bambu-gray" />
-            )}
-          </button>
+          <CameraMinimizeButton minimized={isMinimized} onToggle={() => setIsMinimized(!isMinimized)} />
           <button
             onClick={onClose}
             className="p-1 hover:bg-red-500/20 rounded"

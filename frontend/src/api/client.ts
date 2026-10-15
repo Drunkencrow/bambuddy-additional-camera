@@ -4619,6 +4619,7 @@ export interface AuthStatus {
 export interface AdditionalCameraStatus {
   configured: boolean;
   enabled: boolean;
+  friendly_name: string | null;
   active_sessions: number;
   frames_recent: boolean;
   last_frame_age_seconds: number | null;
@@ -4934,8 +4935,10 @@ export const api = {
     withStreamToken(`${API_BASE}/printers/${printerId}/additional-camera/stream?fps=${fps}`),
   getAdditionalCameraSnapshotUrl: (printerId: number) =>
     withStreamToken(`${API_BASE}/printers/${printerId}/additional-camera/snapshot`),
-  getAdditionalCameraStatus: (printerId: number) =>
-    request<AdditionalCameraStatus>(withStreamToken(`/printers/${printerId}/additional-camera/status`)),
+  getAdditionalCameraStatus: (printerId: number, token?: string) =>
+    request<AdditionalCameraStatus>(token
+      ? `/printers/${printerId}/additional-camera/status?token=${encodeURIComponent(token)}`
+      : withStreamToken(`/printers/${printerId}/additional-camera/status`)),
   getUsbCameras: () =>
     request<{ cameras: { device: string; name: string; capabilities: string[] }[] }>('/printers/usb-cameras'),
   testExternalCamera: (printerId: number, url: string, cameraType: string) =>

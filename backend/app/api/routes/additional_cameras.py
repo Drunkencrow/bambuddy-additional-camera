@@ -157,5 +157,6 @@ async def status(printer_id: int, _=RequireCameraStreamTokenIfAuthEnabled):
     return {
         "configured": camera is not None,
         "enabled": bool(camera and camera.enabled),
+        "friendly_name": camera.friendly_name if camera else None,
         **additional_camera.status(printer_id),
     }

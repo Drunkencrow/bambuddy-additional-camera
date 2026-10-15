@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { screen, waitFor, render as rtlRender } from '@testing-library/react';
+import { screen, waitFor, fireEvent, render as rtlRender } from '@testing-library/react';
 import { CameraPage } from '../../pages/CameraPage';
 import { http, HttpResponse } from 'msw';
 import { server } from '../mocks/server';
@@ -88,6 +88,17 @@ describe('CameraPage', () => {
   });
 
   describe('rendering', () => {
+    it('still sends exactly one primary stop on window unload and unmount', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch');
+      const view = renderCameraPage(1);
+      await screen.findByText('X1 Carbon');
+      fireEvent(window, new Event('beforeunload'));
+      view.unmount();
+      const stops = fetchSpy.mock.calls.filter(([url]) => String(url).includes('/camera/stop'));
+      expect(stops).toHaveLength(1);
+      expect(stops[0][1]).toMatchObject({ method: 'POST', keepalive: true });
+      fetchSpy.mockRestore();
+    });
     it('renders camera page for printer', async () => {
       renderCameraPage(1);
 

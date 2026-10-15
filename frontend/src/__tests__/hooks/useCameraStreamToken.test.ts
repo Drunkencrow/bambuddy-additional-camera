@@ -122,6 +122,21 @@ describe('rewriteMediaSrcWithToken picks the token per URL (#3025)', () => {
     expect(img.getAttribute('src')).toBe('/api/v1/printers/7/camera/stream?fps=10&token=camera-tok');
   });
 
+  it('gives Additional stream and snapshot URLs the camera token', () => {
+    const stream = addImg('/api/v1/printers/7/additional-camera/stream?fps=15');
+    const snapshot = addImg('/api/v1/printers/7/additional-camera/snapshot');
+    rewriteMediaSrcWithToken(root, 'media-tok', 'camera-tok');
+    expect(stream.getAttribute('src')).toBe('/api/v1/printers/7/additional-camera/stream?fps=15&token=camera-tok');
+    expect(snapshot.getAttribute('src')).toBe('/api/v1/printers/7/additional-camera/snapshot?token=camera-tok');
+  });
+
+  it('leaves a reactive Additional viewer token intact when syncing other media', () => {
+    const stream = addImg('/api/v1/printers/7/additional-camera/stream?token=locally-renewed');
+    stream.setAttribute('data-camera-token-managed', '');
+    expect(rewriteMediaSrcWithToken(root, 'media-tok', 'expired-shared-token')).toBe(0);
+    expect(stream.getAttribute('src')).toContain('token=locally-renewed');
+  });
+
   it('still rewrites thumbnails for a user who has no camera token at all', () => {
     const thumb = addImg('/api/v1/archives/5/thumbnail');
     const stream = addImg('/api/v1/printers/7/camera/stream?fps=10');
