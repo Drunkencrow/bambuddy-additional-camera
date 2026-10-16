@@ -3243,6 +3243,9 @@ export default {
     understand: "Понятно",
   },
   camera: {
+    primary: 'Основная',
+    bothCameras: 'Обе камеры',
+    bothOverlay: 'Плавающее окно обеих камер',
     title: "Камера",
     invalidPrinterId: "Неверный идентификатор принтера",
     live: "Прямой эфир",

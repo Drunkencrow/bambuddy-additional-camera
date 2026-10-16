@@ -4,6 +4,9 @@ import {
   cameraPopupGeometryKey,
   cameraPopupName,
   cameraViewerIdentity,
+  cameraRoute,
+  cameraEmbeddedIntentKey,
+  type CameraSource,
 } from '../../utils/cameraIdentity';
 import { openCameraWindow } from '../../utils/camera';
 
@@ -14,6 +17,33 @@ describe('camera viewer identity and popup geometry', () => {
     vi.mocked(localStorage.setItem).mockImplementation((key, value) => {
       storage.set(key, value);
     });
+  });
+
+  it('keeps all three identities, routes, popup names, and persistence keys independent', () => {
+    const sources: CameraSource[] = ['primary', 'additional', 'both'];
+    for (const key of [cameraViewerIdentity, cameraRoute, cameraPopupName, cameraPopupGeometryKey, cameraOverlayGeometryKey]) {
+      expect(new Set(sources.map((source) => key(source, 1))).size).toBe(3);
+    }
+    expect(new Set(sources.map(cameraEmbeddedIntentKey)).size).toBe(3);
+    expect(cameraViewerIdentity('both', 1)).toBe('both:1');
+    expect(cameraRoute('both', 1)).toBe('/camera/1/both');
+    expect(cameraPopupName('both', 1)).toBe('camera-both:1');
+    expect(cameraPopupGeometryKey('both', 1)).toBe('cameraWindowState_both:1');
+    expect(cameraOverlayGeometryKey('both', 1)).toBe('embeddedCameraState_both:1');
+    expect(cameraEmbeddedIntentKey('both')).toBe('openEmbeddedCameras_both');
+  });
+
+  it('opens all three popups without replacing or borrowing geometry from another identity', () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+    localStorage.setItem('cameraWindowState_both:1', JSON.stringify({ width: 1100, height: 650 }));
+    openCameraWindow(1);
+    openCameraWindow(1, 'additional');
+    openCameraWindow(1, 'both');
+    expect(open.mock.calls.map(([route, name]) => [route, name])).toEqual([
+      ['/camera/1', 'camera-1'], ['/camera/1/additional', 'camera-additional:1'], ['/camera/1/both', 'camera-both:1'],
+    ]);
+    expect(open.mock.calls[2][2]).toContain('width=1100,height=650');
+    open.mockRestore();
   });
 
   it('keeps primary legacy names/keys and namespaces Additional by source and printer', () => {

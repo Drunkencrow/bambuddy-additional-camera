@@ -3408,6 +3408,9 @@ export default {
 
   // Camera page
   camera: {
+    primary: 'Principale',
+    bothCameras: 'Entrambe le videocamere',
+    bothOverlay: 'Finestra sovrapposta delle due videocamere',
     title: 'Vista camera',
     invalidPrinterId: 'ID stampante non valido',
     live: 'Live',

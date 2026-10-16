@@ -1,0 +1,24 @@
+/* Query the viewer, including a resized floating overlay, not the viewport. */
+.both-camera-root {
+  container-type: inline-size;
+}
+
+.both-camera-root:fullscreen {
+  width: 100%;
+  height: 100%;
+}
+
+.both-camera-panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1px;
+  background: var(--color-bambu-dark-tertiary, #333);
+}
+
+@container (min-width: 640px) {
+  .both-camera-panes {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+}

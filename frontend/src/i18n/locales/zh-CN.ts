@@ -3408,6 +3408,9 @@ export default {
 
   // Camera page
   camera: {
+    primary: '主摄像头',
+    bothCameras: '双摄像头',
+    bothOverlay: '双摄像头悬浮窗',
     title: '摄像头视图',
     invalidPrinterId: '无效的打印机 ID',
     live: '实时',

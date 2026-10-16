@@ -3251,6 +3251,9 @@ export default {
     understand: '확인했습니다'
   },
   camera: {
+    primary: '기본',
+    bothCameras: '두 카메라',
+    bothOverlay: '두 카메라 오버레이',
     title: '카메라 보기',
     invalidPrinterId: '유효하지 않은 프린터 ID',
     live: '실시간',

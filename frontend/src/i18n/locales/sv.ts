@@ -3450,6 +3450,9 @@ errors: {
 
   // Camera page
   camera: {
+    primary: 'Primär',
+    bothCameras: 'Båda kamerorna',
+    bothOverlay: 'Flytande fönster för båda kamerorna',
     title: 'Kameravy',
     invalidPrinterId: 'Ogiltigt skrivar-ID',
     live: 'Live',

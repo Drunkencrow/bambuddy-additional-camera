@@ -22,12 +22,16 @@ export function FloatingCameraFrame({
   viewerIndex = 0,
   children,
   minimized = false,
+  defaultSize = { width: 430, height: 320 },
+  label = 'Additional Camera overlay',
 }: {
   identity: string;
   storageKey: string;
   viewerIndex?: number;
   children: ReactNode;
   minimized?: boolean;
+  defaultSize?: { width: number; height: number };
+  label?: string;
 }) {
   const { zIndex, ...focusHandlers } = useFloatingOverlayFocus(identity);
   const clamp = (value: Geometry): Geometry => ({
@@ -50,10 +54,9 @@ export function FloatingCameraFrame({
       /* Fall back to on-screen defaults. */
     }
     return clamp({
-      x: window.innerWidth - 450 - viewerIndex * 30,
+      x: window.innerWidth - defaultSize.width - 20 - viewerIndex * 30,
       y: 60 + viewerIndex * 30,
-      width: 430,
-      height: 320,
+      ...defaultSize,
     });
   });
   const gesture = useRef<{
@@ -145,7 +148,7 @@ export function FloatingCameraFrame({
   return (
     <section
       {...focusHandlers}
-      aria-label="Additional Camera overlay"
+      aria-label={label}
       data-camera-overlay={identity}
       className="fixed z-40 rounded-lg shadow-2xl border border-bambu-dark-tertiary bg-black overflow-hidden"
       style={{

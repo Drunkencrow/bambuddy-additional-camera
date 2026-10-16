@@ -3423,6 +3423,9 @@ export default {
 
   // Kamera sayfası
   camera: {
+    primary: 'Birincil',
+    bothCameras: 'Her iki kamera',
+    bothOverlay: 'Her iki kamera için kayan pencere',
     title: 'Kamera Görünümü',
     invalidPrinterId: 'Geçersiz yazıcı ID\'si',
     live: 'Canlı',

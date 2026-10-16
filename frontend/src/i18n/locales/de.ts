@@ -3421,6 +3421,9 @@ export default {
 
   // Camera page
   camera: {
+    primary: 'Primär',
+    bothCameras: 'Beide Kameras',
+    bothOverlay: 'Überlagerung beider Kameras',
     title: 'Kameraansicht',
     invalidPrinterId: 'Ungültige Drucker-ID',
     live: 'Live',

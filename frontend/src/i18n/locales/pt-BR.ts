@@ -3408,6 +3408,9 @@ export default {
 
   // Camera page
   camera: {
+    primary: 'Principal',
+    bothCameras: 'Ambas as câmeras',
+    bothOverlay: 'Janela flutuante de ambas as câmeras',
     title: 'Visualização da Câmera',
     invalidPrinterId: 'ID da impressora inválido',
     live: 'Ao Vivo',

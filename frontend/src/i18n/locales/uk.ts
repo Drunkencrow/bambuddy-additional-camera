@@ -3448,6 +3448,9 @@ export default {
 
   // Camera page
   camera: {
+    primary: 'Основна',
+    bothCameras: 'Обидві камери',
+    bothOverlay: 'Плаваюче вікно обох камер',
     title: "Вид з камери",
     invalidPrinterId: "Недійсний ідентифікатор принтера",
     live: "Наживо",

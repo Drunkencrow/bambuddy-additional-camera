@@ -143,9 +143,9 @@ export function useStreamTokenSync() {
       if (!(el instanceof HTMLImageElement || el instanceof HTMLVideoElement)) return;
 
       const src = el.src || '';
-      // Additional viewers check authenticated status themselves. A transport
-      // failure there must not refresh every primary viewer's shared token.
-      if (src.includes('/additional-camera/')) return;
+      // Pane-managed viewers renew locally. A transport failure in either
+      // Both pane must not refresh its sibling or standalone viewers.
+      if (el.hasAttribute('data-camera-token-managed') || src.includes('/additional-camera/')) return;
       const camera = isCameraUrl(src);
       const token = camera ? getStreamToken() : getMediaToken();
       if (!token || !src.includes(`token=${encodeURIComponent(token)}`)) return;

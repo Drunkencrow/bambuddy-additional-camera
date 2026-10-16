@@ -1,4 +1,4 @@
-export type CameraSource = 'primary' | 'additional';
+export type CameraSource = 'primary' | 'additional' | 'both';
 
 export function cameraViewerIdentity(source: CameraSource, printerId: number): string {
   return `${source}:${printerId}`;
@@ -17,4 +17,26 @@ export function cameraOverlayGeometryKey(source: CameraSource, printerId: number
   return source === 'primary'
     ? `embeddedCameraState_${printerId}`
     : `embeddedCameraState_${cameraViewerIdentity(source, printerId)}`;
+}
+
+export function cameraRoute(source: CameraSource, printerId: number): string {
+  switch (source) {
+    case 'primary':
+      return `/camera/${printerId}`;
+    case 'additional':
+      return `/camera/${printerId}/additional`;
+    case 'both':
+      return `/camera/${printerId}/both`;
+  }
+}
+
+export function cameraEmbeddedIntentKey(source: CameraSource): string {
+  switch (source) {
+    case 'primary':
+      return 'openEmbeddedCameras';
+    case 'additional':
+      return 'openEmbeddedCameras_additional';
+    case 'both':
+      return 'openEmbeddedCameras_both';
+  }
 }

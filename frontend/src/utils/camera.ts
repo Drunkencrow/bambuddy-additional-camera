@@ -6,7 +6,7 @@
  * chosen per click from the camera button's own menu, and the stored setting
  * survives only as the default a browser starts from.
  */
-import { cameraPopupGeometryKey, cameraPopupName, type CameraSource } from './cameraIdentity';
+import { cameraPopupGeometryKey, cameraPopupName, cameraRoute, type CameraSource } from './cameraIdentity';
 
 export type CameraViewMode = 'window' | 'embedded';
 
@@ -53,8 +53,8 @@ export function storeCameraViewMode(mode: CameraViewMode): void {
  */
 export function openCameraWindow(printerId: number, source: CameraSource = 'primary'): void {
   let state: { width?: number; height?: number; left?: number; top?: number } = {
-    width: 640,
-    height: 400,
+    width: source === 'both' ? 1000 : 640,
+    height: source === 'both' ? 560 : 400,
   };
   try {
     const saved = localStorage.getItem(cameraPopupGeometryKey(source, printerId));
@@ -68,8 +68,8 @@ export function openCameraWindow(printerId: number, source: CameraSource = 'prim
   }
 
   const features = [
-    `width=${state.width ?? 640}`,
-    `height=${state.height ?? 400}`,
+    `width=${state.width ?? (source === 'both' ? 1000 : 640)}`,
+    `height=${state.height ?? (source === 'both' ? 560 : 400)}`,
     state.left !== undefined ? `left=${state.left}` : '',
     state.top !== undefined ? `top=${state.top}` : '',
     'menubar=no,toolbar=no,location=no,status=no',
@@ -77,6 +77,6 @@ export function openCameraWindow(printerId: number, source: CameraSource = 'prim
     .filter(Boolean)
     .join(',');
 
-  const route = `/camera/${printerId}${source === 'additional' ? '/additional' : ''}`;
+  const route = cameraRoute(source, printerId);
   window.open(route, cameraPopupName(source, printerId), features);
 }

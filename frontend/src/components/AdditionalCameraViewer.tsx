@@ -10,10 +10,11 @@ interface Props {
   windowMode?: boolean;
   headerActions?: ReactNode;
   minimized?: boolean;
+  pane?: boolean;
 }
 
 /** Shared Additional presentation for popup and overlay, independent of printer controls. */
-export function AdditionalCameraViewer({ printerId, windowMode = false, headerActions, minimized = false }: Props) {
+export function AdditionalCameraViewer({ printerId, windowMode = false, headerActions, minimized = false, pane = false }: Props) {
   const { t } = useTranslation();
   const stream = useAdditionalCameraStream(printerId);
   const { url, phase, loaded, retry } = stream;
@@ -24,12 +25,12 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
   const [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => {
-    if (!windowMode) return;
+    if (!windowMode || pane) return;
     document.title = `${title} - Camera`;
     return () => {
       document.title = 'Bambuddy';
     };
-  }, [title, windowMode]);
+  }, [title, windowMode, pane]);
 
   useEffect(() => {
     const image = imgRef.current;
@@ -77,13 +78,14 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
   return (
     <div
       ref={containerRef}
-      data-camera-viewer={cameraViewerIdentity('additional', printerId)}
-      className="h-full min-h-0 bg-black flex flex-col text-white"
+      data-camera-viewer={pane ? undefined : cameraViewerIdentity('additional', printerId)}
+      data-camera-pane={pane ? 'additional' : undefined}
+      className="h-full min-w-0 min-h-0 bg-black flex flex-col text-white overflow-hidden"
     >
       <div
-        data-camera-drag-handle
+        data-camera-drag-handle={pane ? undefined : true}
         className={
-          windowMode
+          windowMode || pane
             ? 'flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-bambu-dark-secondary border-b border-bambu-dark-tertiary'
             : 'flex items-center justify-between px-3 py-2 bg-bambu-dark border-b border-bambu-dark-tertiary cursor-grab active:cursor-grabbing'
         }
@@ -95,7 +97,7 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
         </h1>
         <div
           className={
-            windowMode ? 'flex flex-wrap max-w-full items-center gap-1 no-drag' : 'flex items-center gap-1 no-drag'
+            windowMode || pane ? 'flex flex-wrap max-w-full items-center gap-1 no-drag' : 'flex items-center gap-1 no-drag'
           }
         >
           {!minimized && (
@@ -125,7 +127,7 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
-              <button
+              {!pane && <button
                 className={buttonClass}
                 onClick={toggleFullscreen}
                 title={
@@ -133,7 +135,7 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
                 }
               >
                 {fullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-              </button>
+              </button>}
             </>
           )}
           {headerActions}
@@ -219,4 +221,9 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
       )}
     </div>
   );
+}
+
+/** Additional feed only: no floating frame, document title, or fullscreen control. */
+export function AdditionalCameraPane({ printerId }: { printerId: number }) {
+  return <AdditionalCameraViewer printerId={printerId} pane />;
 }

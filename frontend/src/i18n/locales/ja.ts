@@ -3421,6 +3421,9 @@ export default {
 
   // Camera page
   camera: {
+    primary: 'プライマリ',
+    bothCameras: '両方のカメラ',
+    bothOverlay: '両方のカメラのオーバーレイ',
     title: 'カメラビュー',
     invalidPrinterId: '無効なプリンターID',
     live: 'ライブ',

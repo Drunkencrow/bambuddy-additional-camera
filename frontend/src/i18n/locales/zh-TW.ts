@@ -3408,6 +3408,9 @@ export default {
 
   // Camera page
   camera: {
+    primary: '主要攝影機',
+    bothCameras: '雙攝影機',
+    bothOverlay: '雙攝影機浮動視窗',
     title: '攝影機檢視',
     invalidPrinterId: '無效的印表機 ID',
     live: '即時',
