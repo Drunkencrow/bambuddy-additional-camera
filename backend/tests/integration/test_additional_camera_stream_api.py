@@ -125,6 +125,8 @@ async def test_status_does_not_open_transport(async_client, printer_factory):
     with patch("backend.app.services.external_camera.generate_mjpeg_stream") as transport:
         response = await async_client.get(path(printer.id) + "/status")
         assert response.json() == {
+            "additional_icon": "camera-plus",
+            "both_icon": "dual-camera",
             "configured": False,
             "enabled": False,
             "friendly_name": None,
@@ -350,6 +352,8 @@ async def test_camera_viewer_can_read_title_without_configuration_permission(asy
     assert response.status_code == 200
     assert response.json()["friendly_name"] == PAYLOAD["friendly_name"]
     assert set(response.json()) == {
+        "additional_icon",
+        "both_icon",
         "configured",
         "enabled",
         "friendly_name",

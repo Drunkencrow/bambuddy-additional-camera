@@ -1,3 +1,4 @@
+import type { AdditionalCameraIconId, BothCameraIconId } from '../components/AuxiliaryCameraIcons';
 import type { ArchivePlatesResponse, LibraryFilePlatesResponse } from '../types/plates';
 
 const API_BASE = '/api/v1';
@@ -4617,6 +4618,8 @@ export interface AuthStatus {
 
 // API functions
 export interface AdditionalCameraStatus {
+  additional_icon: AdditionalCameraIconId;
+  both_icon: BothCameraIconId;
   configured: boolean;
   enabled: boolean;
   friendly_name: string | null;
@@ -4626,6 +4629,8 @@ export interface AdditionalCameraStatus {
 }
 
 export interface AdditionalCameraInput {
+  additional_icon: AdditionalCameraIconId;
+  both_icon: BothCameraIconId;
   friendly_name: string;
   enabled: boolean;
   camera_type: 'mjpeg' | 'rtsp' | 'snapshot' | 'usb';

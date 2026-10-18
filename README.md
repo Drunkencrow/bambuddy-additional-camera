@@ -6,6 +6,8 @@ This repository (`Drunkencrow/bambuddy-additional-camera`) is a separate customi
 
 **Current completed/tested release:** `additional-camera-v1.0.0`
 
+**Upcoming release:** Additional Camera v1.1.0 (not yet tagged)
+
 **Development branch:** `additional-camera-dev`
 
 ## Stock and Additional cameras
@@ -33,10 +35,29 @@ Open **Configure Bambuddy → Additional Cameras**, select a printer, and config
 | Source type | MJPEG, RTSP, HTTP Snapshot, or USB/V4L2. |
 | Source URL / device | The camera stream, snapshot endpoint, or USB/V4L2 device for the selected source type. |
 | Optional snapshot URL | Provides a separate snapshot endpoint where supported. |
+| Additional Camera Icon / Both Cameras Icon | Independently selects each camera control’s icon. |
 | Rotation | Adjusts the Additional Camera's displayed orientation. |
 | Test Camera / Connection | Checks the configured camera connection before use. |
 
 Saved configurations remain visible as persistent camera cards, so multiple printers' Additional Cameras can be reviewed and edited without selecting each printer again. The printer selector offers printers that do not yet have an Additional Camera configuration. Saving a configuration leaves its card visible and removes that printer from the available choices; removing the configuration makes the printer available again. Disabling a camera retains its configuration.
+
+Configured camera cards use a compact two-column layout on wider screens: Friendly Name and Enabled beside Camera Type, and Rotation beside the two icon dropdowns. Camera URL and optional Snapshot URL retain the full card width. Narrow screens stack the fields in one column.
+
+### Selectable camera icons
+
+Additional Camera v1.1.0 adds two independently selectable control icons for each configured Additional Camera. Choose them under **Configure Bambuddy → Additional Cameras** using compact dropdowns that show an SVG preview and translated option name.
+
+| Additional camera control icons | Both cameras control icons |
+| --- | --- |
+| Camera + Plus (default) | Dual Cameras (default) |
+| Video + Plus | Overlapping Cameras |
+| Overhead Camera | Side-by-Side Cameras |
+| Chamber Camera | Split Camera View |
+| Webcam | |
+| Security Camera | |
+| Board Camera | |
+
+**Camera + Plus** remains the default Additional icon, and **Dual Cameras** remains the default Both icon. Icon choices persist per configured Additional Camera when saved. Changing an icon changes presentation only: it does not change the camera source or viewer behavior. Saving a changed icon updates the printer-card control without a page reload or restarting camera media.
 
 ### Supported sources
 
@@ -54,8 +75,8 @@ The printer card provides **Stock | Additional | Both** camera controls.
 | Control | Behavior | Icon |
 | --- | --- | --- |
 | Stock | Normal Bambuddy camera behavior with unchanged source semantics. | Existing Stock Video icon. |
-| Additional | Opens the independently configured second camera. | Custom Additional Camera icon. |
-| Both | Opens Primary and Additional simultaneously. | Custom dual-camera icon. |
+| Additional | Opens the independently configured second camera. | Selected Additional icon; Camera + Plus by default. |
+| Both | Opens Primary and Additional simultaneously. | Selected Both icon; Dual Cameras by default. |
 
 **Additional** and **Both** appear only when an Additional Camera is configured and enabled for that printer.
 
@@ -120,6 +141,8 @@ Bring upstream Bambuddy changes into the custom branch deliberately, review conf
 ## Version and testing
 
 **`additional-camera-v1.0.0`** represents the extensively tested initial Additional Camera implementation. This release does not claim compatibility with future Bambuddy versions; later upstream integrations require their own validation.
+
+**Upcoming Additional Camera v1.1.0** adds persistent, independently selectable Additional/Both control icons and the compact responsive configuration form. The existing `additional-camera-v1.0.0` tag remains the initial release reference; v1.1.0 has not yet been tagged.
 
 Development validation covered:
 

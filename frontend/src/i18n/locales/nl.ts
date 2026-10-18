@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "Pictogram extra camera",
+    bothIcon: "Pictogram beide camera’s",
+    icons: {
+      cameraPlus: "Camera met plus",
+      videoPlus: "Video met plus",
+      overhead: "Bovencamera",
+      chamber: "Kamercamera",
+      webcam: "Webcamera",
+      securityCamera: "Beveiligingscamera",
+      boardCamera: "Printplaatcamera",
+      dualCamera: "Dubbele camera’s",
+      overlappingCameras: "Overlappende camera’s",
+      sideBySide: "Camera’s naast elkaar",
+      splitCameraView: "Gesplitst camerabeeld",
+    },
     reconnecting: "Opnieuw verbinden…",
     expand: "Uitvouwen",
     minimize: "Minimaliseren",

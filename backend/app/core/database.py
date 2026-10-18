@@ -1825,6 +1825,14 @@ async def run_migrations(conn):
     """
     from sqlalchemy import text
 
+    # Presentational metadata: constant defaults also populate existing configurations.
+    await _safe_execute(
+        conn, "ALTER TABLE additional_cameras ADD COLUMN additional_icon VARCHAR(32) NOT NULL DEFAULT 'camera-plus'"
+    )
+    await _safe_execute(
+        conn, "ALTER TABLE additional_cameras ADD COLUMN both_icon VARCHAR(32) NOT NULL DEFAULT 'dual-camera'"
+    )
+
     # Existing PostgreSQL databases predate the finance ORM tables. These must
     # exist before any ALTER TABLE / CREATE INDEX statements below reference
     # them. Fresh installs remain idempotent because create_all() runs first.

@@ -1,11 +1,24 @@
 """Additional camera configuration and unsaved connection-test inputs."""
 
 from datetime import datetime
-from typing import Literal
+from typing import Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 CameraType = Literal["mjpeg", "rtsp", "snapshot", "usb"]
+
+AdditionalCameraIcon = Literal[
+    "camera-plus", "video-plus", "overhead", "chamber", "webcam", "security-camera", "board-camera"
+]
+BothCamerasIcon = Literal["dual-camera", "overlapping-cameras", "side-by-side", "split-camera-view"]
+
+
+def normalized_additional_icon(value: object) -> AdditionalCameraIcon:
+    return value if value in get_args(AdditionalCameraIcon) else "camera-plus"
+
+
+def normalized_both_icon(value: object) -> BothCamerasIcon:
+    return value if value in get_args(BothCamerasIcon) else "dual-camera"
 
 
 class AdditionalCameraTest(BaseModel):
@@ -22,6 +35,8 @@ class AdditionalCameraTest(BaseModel):
 
 
 class AdditionalCameraSave(AdditionalCameraTest):
+    additional_icon: AdditionalCameraIcon = "camera-plus"
+    both_icon: BothCamerasIcon = "dual-camera"
     friendly_name: str = Field(min_length=1, max_length=100)
     enabled: bool = False
     snapshot_url: str | None = Field(default=None, max_length=500)
@@ -46,3 +61,14 @@ class AdditionalCameraResponse(AdditionalCameraSave):
     printer_id: int
     created_at: datetime
     updated_at: datetime
+
+    # Reads tolerate old/corrupted storage; submitted configuration remains strict.
+    @field_validator("additional_icon", mode="before")
+    @classmethod
+    def normalize_additional(cls, value: object) -> AdditionalCameraIcon:
+        return normalized_additional_icon(value)
+
+    @field_validator("both_icon", mode="before")
+    @classmethod
+    def normalize_both(cls, value: object) -> BothCamerasIcon:
+        return normalized_both_icon(value)

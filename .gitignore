@@ -105,3 +105,27 @@ test_pipeline_run_1.3mf
 htmlcov/
 
 feature_votes.sh
+
+# Python tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Generated Python coverage reports
+/coverage.xml
+/coverage.json
+/backend/coverage.xml
+/backend/coverage.json
+
+# Local environment variants; retain templates
+.env.*
+!.env.example
+!.env.*.example
+
+# Browser test output
+/test-results/
+/playwright-report/
+/blob-report/
+/frontend/test-results/
+/frontend/playwright-report/
+/frontend/blob-report/

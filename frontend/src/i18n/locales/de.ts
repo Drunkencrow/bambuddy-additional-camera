@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "Symbol der zusätzlichen Kamera",
+    bothIcon: "Symbol für beide Kameras",
+    icons: {
+      cameraPlus: "Kamera + Plus",
+      videoPlus: "Videokamera + Plus",
+      overhead: "Überkopfkamera",
+      chamber: "Bauraumkamera",
+      webcam: "Webkamera",
+      securityCamera: "Überwachungskamera",
+      boardCamera: "Platinenkamera",
+      dualCamera: "Zwei Kameras",
+      overlappingCameras: "Überlappende Kameras",
+      sideBySide: "Kameras nebeneinander",
+      splitCameraView: "Geteilte Kameraansicht",
+    },
     reconnecting: "Verbindung wird wiederhergestellt…",
     expand: "Erweitern",
     minimize: "Minimieren",

@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "Ícone da câmera adicional",
+    bothIcon: "Ícone de ambas as câmeras",
+    icons: {
+      cameraPlus: "Câmera + Plus",
+      videoPlus: "Vídeo + Plus",
+      overhead: "Câmera superior",
+      chamber: "Câmera da câmara de impressão",
+      webcam: "Câmera web",
+      securityCamera: "Câmera de segurança",
+      boardCamera: "Câmera de placa",
+      dualCamera: "Duas câmeras",
+      overlappingCameras: "Câmeras sobrepostas",
+      sideBySide: "Câmeras lado a lado",
+      splitCameraView: "Visualização de câmera dividida",
+    },
     reconnecting: "Reconectando…",
     expand: "Expandir",
     minimize: "Minimizar",

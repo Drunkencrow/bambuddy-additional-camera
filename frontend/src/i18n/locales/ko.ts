@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "추가 카메라 아이콘",
+    bothIcon: "두 카메라 아이콘",
+    icons: {
+      cameraPlus: "카메라 + 플러스",
+      videoPlus: "비디오 + 플러스",
+      overhead: "상부 카메라",
+      chamber: "챔버 카메라",
+      webcam: "웹캠",
+      securityCamera: "보안 카메라",
+      boardCamera: "보드 카메라",
+      dualCamera: "듀얼 카메라",
+      overlappingCameras: "겹친 카메라",
+      sideBySide: "나란히 배치된 카메라",
+      splitCameraView: "분할 카메라 보기",
+    },
     reconnecting: "재연결 중…",
     expand: "확장",
     minimize: "최소화",

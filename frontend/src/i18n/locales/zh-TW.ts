@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "附加相機圖示",
+    bothIcon: "雙相機圖示",
+    icons: {
+      cameraPlus: "相機 + 加號",
+      videoPlus: "攝影機 + 加號",
+      overhead: "頂部相機",
+      chamber: "腔體相機",
+      webcam: "網路攝影機",
+      securityCamera: "監控相機",
+      boardCamera: "板載相機",
+      dualCamera: "雙相機",
+      overlappingCameras: "重疊相機",
+      sideBySide: "並排相機",
+      splitCameraView: "相機分割畫面",
+    },
     reconnecting: "正在重新連線…",
     expand: "展開",
     minimize: "最小化",

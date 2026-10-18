@@ -7,6 +7,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { Card, CardContent, CardHeader } from './Card';
 import { Button } from './Button';
 import { ConfirmModal } from './ConfirmModal';
+import { ADDITIONAL_CAMERA_ICONS, BOTH_CAMERA_ICONS } from './AuxiliaryCameraIcons';
+import { CameraIconSelect } from './CameraIconSelect';
 import { registerSettingsSearch } from '../lib/settingsSearch';
 
 registerSettingsSearch({
@@ -18,6 +20,8 @@ registerSettingsSearch({
 });
 
 const empty: AdditionalCameraInput = {
+  additional_icon: 'camera-plus',
+  both_icon: 'dual-camera',
   friendly_name: '',
   enabled: false,
   camera_type: 'mjpeg',
@@ -37,7 +41,7 @@ function CameraForm({
   onSaved: (camera: AdditionalCamera | null) => void;
 }) {
   const { t } = useTranslation();
-  const [form, setForm] = useState<AdditionalCameraInput>(initial ?? empty);
+  const [form, setForm] = useState<AdditionalCameraInput>({ ...empty, ...initial });
   const [exists, setExists] = useState(!!initial);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ success: boolean; text: string } | null>(null);
@@ -79,33 +83,37 @@ function CameraForm({
         }}
       >
         <fieldset disabled={busy} className="space-y-4">
-          <label className="block text-sm">
-            {t('additionalCameras.friendlyName', 'Friendly Name')}
-            <input
-              className={inputClass}
-              value={form.friendly_name}
-              maxLength={100}
-              required
-              onChange={(e) => change({ friendly_name: e.target.value })}
-            />
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.enabled} onChange={(e) => change({ enabled: e.target.checked })} />
-            {t('additionalCameras.enabled', 'Enabled')}
-          </label>
-          <label className="block text-sm">
-            {t('additionalCameras.cameraType', 'Camera Type')}
-            <select
-              className={inputClass}
-              value={form.camera_type}
-              onChange={(e) => change({ camera_type: e.target.value as AdditionalCameraInput['camera_type'] })}
-            >
-              <option value="mjpeg">MJPEG</option>
-              <option value="rtsp">RTSP</option>
-              <option value="snapshot">{t('camera.snapshot')}</option>
-              <option value="usb">USB</option>
-            </select>
-          </label>
+          <div className={exists ? 'grid grid-cols-1 sm:grid-cols-2 gap-4 items-start' : 'space-y-4'}>
+            <div className={exists ? 'min-w-0 space-y-2' : 'min-w-0 space-y-4'}>
+              <label className="block text-sm">
+                {t('additionalCameras.friendlyName', 'Friendly Name')}
+                <input
+                  className={inputClass}
+                  value={form.friendly_name}
+                  maxLength={100}
+                  required
+                  onChange={(e) => change({ friendly_name: e.target.value })}
+                />
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={form.enabled} onChange={(e) => change({ enabled: e.target.checked })} />
+                {t('additionalCameras.enabled', 'Enabled')}
+              </label>
+            </div>
+            <label className="block text-sm">
+              {t('additionalCameras.cameraType', 'Camera Type')}
+              <select
+                className={inputClass}
+                value={form.camera_type}
+                onChange={(e) => change({ camera_type: e.target.value as AdditionalCameraInput['camera_type'] })}
+              >
+                <option value="mjpeg">MJPEG</option>
+                <option value="rtsp">RTSP</option>
+                <option value="snapshot">{t('camera.snapshot')}</option>
+                <option value="usb">USB</option>
+              </select>
+            </label>
+          </div>
           <label className="block text-sm">
             {form.camera_type === 'usb'
               ? t('additionalCameras.usbDevice', 'USB Device')
@@ -152,20 +160,33 @@ function CameraForm({
               />
             </label>
           )}
-          <label className="block text-sm">
-            {t('additionalCameras.rotation', 'Rotation')}
-            <select
-              className={inputClass}
-              value={form.rotation}
-              onChange={(e) => change({ rotation: Number(e.target.value) as AdditionalCameraInput['rotation'] })}
-            >
-              {([0, 90, 180, 270] as const).map((rotation) => (
-                <option key={rotation} value={rotation}>
-                  {rotation}°
-                </option>
+          <div className={exists ? 'grid grid-cols-1 sm:grid-cols-2 gap-4 items-start' : 'space-y-4'}>
+            <label className="block text-sm">
+              {t('additionalCameras.rotation', 'Rotation')}
+              <select
+                className={inputClass}
+                value={form.rotation}
+                onChange={(e) => change({ rotation: Number(e.target.value) as AdditionalCameraInput['rotation'] })}
+              >
+                {([0, 90, 180, 270] as const).map((rotation) => (
+                  <option key={rotation} value={rotation}>
+                    {rotation}°
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className={exists ? 'min-w-0 space-y-3' : 'min-w-0 space-y-4'}>
+              {(['additional_icon', 'both_icon'] as const).map((field) => (
+                <CameraIconSelect
+                  key={field}
+                  label={t(field === 'additional_icon' ? 'additionalCameras.additionalIcon' : 'additionalCameras.bothIcon')}
+                  icons={field === 'additional_icon' ? ADDITIONAL_CAMERA_ICONS : BOTH_CAMERA_ICONS}
+                  value={form[field] ?? (field === 'additional_icon' ? 'camera-plus' : 'dual-camera')}
+                  onChange={(id) => change({ [field]: id })}
+                />
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"

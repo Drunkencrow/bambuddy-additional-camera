@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "Ikon för extra kamera",
+    bothIcon: "Ikon för båda kamerorna",
+    icons: {
+      cameraPlus: "Kamera + Plus",
+      videoPlus: "Video med plus",
+      overhead: "Kamera ovanifrån",
+      chamber: "Kammarkamera",
+      webcam: "Webbkamera",
+      securityCamera: "Övervakningskamera",
+      boardCamera: "Kortkamera",
+      dualCamera: "Dubbla kameror",
+      overlappingCameras: "Överlappande kameror",
+      sideBySide: "Kameror sida vid sida",
+      splitCameraView: "Delad kameravy",
+    },
     reconnecting: "Återansluter…",
     expand: "Expandera",
     minimize: "Minimera",

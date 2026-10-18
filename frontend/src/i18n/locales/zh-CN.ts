@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "附加相机图标",
+    bothIcon: "双相机图标",
+    icons: {
+      cameraPlus: "相机 + 加号",
+      videoPlus: "摄像机 + 加号",
+      overhead: "顶部相机",
+      chamber: "腔体相机",
+      webcam: "网络摄像头",
+      securityCamera: "监控相机",
+      boardCamera: "板载相机",
+      dualCamera: "双相机",
+      overlappingCameras: "重叠相机",
+      sideBySide: "并排相机",
+      splitCameraView: "相机分屏视图",
+    },
     reconnecting: "正在重新连接…",
     expand: "展开",
     minimize: "最小化",

@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "追加カメラのアイコン",
+    bothIcon: "両方のカメラのアイコン",
+    icons: {
+      cameraPlus: "カメラ＋プラス",
+      videoPlus: "ビデオ＋プラス",
+      overhead: "上部カメラ",
+      chamber: "チャンバーカメラ",
+      webcam: "ウェブカメラ",
+      securityCamera: "防犯カメラ",
+      boardCamera: "基板カメラ",
+      dualCamera: "デュアルカメラ",
+      overlappingCameras: "重なったカメラ",
+      sideBySide: "横並びカメラ",
+      splitCameraView: "カメラ分割表示",
+    },
     reconnecting: "再接続中…",
     expand: "展開",
     minimize: "最小化",

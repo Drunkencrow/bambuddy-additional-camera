@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 const auth = vi.hoisted(() => ({ loading: false, authEnabled: true, user: { id: 3 }, hasPermission: vi.fn(() => true) }));
 vi.mock('../../contexts/AuthContext', () => ({ useAuth: () => auth }));
 let client: QueryClient;
-let states: Record<number, { configured: boolean; enabled: boolean }>;
+let states: Record<number, { configured: boolean; enabled: boolean; additional_icon?: string; both_icon?: string }>;
 let requests: number[];
 const embedded = vi.fn();
 const select = vi.fn();
@@ -113,6 +113,27 @@ describe('Additional/Both printer-card availability', () => {
       .some((query) => query.queryKey.at(-1) === 'rejected-2' && query.state.status === 'error')).toBe(true));
     expect(minted).toBe(2);
     expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('resolves configured artwork and preserves the button and open menu during icon updates', async () => {
+    states[1] = { configured: true, enabled: true, additional_icon: 'overhead', both_icon: 'overlapping-cameras' };
+    mount();
+    const additional = await screen.findByLabelText('Additional Camera');
+    const both = screen.getByLabelText('Both Cameras');
+    expect(additional.querySelector('svg')).toHaveAttribute('data-camera-icon', 'overhead');
+    expect(both.querySelector('svg')).toHaveAttribute('data-camera-icon', 'overlapping-cameras');
+    const classes = additional.className;
+    fireEvent.click(screen.getByLabelText('Additional Camera — Camera View Mode'));
+    expect(screen.getByText('Embedded Overlay')).toBeInTheDocument();
+    states[1] = { configured: true, enabled: true, additional_icon: '__proto__', both_icon: 'constructor' };
+    await act(async () => { await client.invalidateQueries({ queryKey: ['additional-camera-viewer-status'] }); });
+    expect(screen.getByLabelText('Additional Camera')).toBe(additional);
+    expect(additional.className).toBe(classes);
+    await waitFor(() => expect(additional.querySelector('svg')).toHaveAttribute('data-camera-icon', 'additional'));
+    expect(both.querySelector('svg')).toHaveAttribute('data-camera-icon', 'both');
+    expect(screen.getByText('Embedded Overlay')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Embedded Overlay'));
+    expect(embedded).toHaveBeenCalledWith('additional', 1);
   });
 
   it('has no production Console launcher or event listener', () => {

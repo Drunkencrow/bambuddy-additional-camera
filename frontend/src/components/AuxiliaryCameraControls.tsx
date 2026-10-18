@@ -8,7 +8,7 @@ import { useCameraStreamAccess } from '../hooks/useCameraStreamToken';
 import { openCameraWindow, type CameraViewMode } from '../utils/camera';
 import { Button } from './Button';
 import { ContextMenu } from './ContextMenu';
-import { AdditionalCameraIcon, BothCamerasIcon } from './AuxiliaryCameraIcons';
+import { resolveAdditionalCameraIcon, resolveBothCameraIcon } from './AuxiliaryCameraIcons';
 
 type Source = 'additional' | 'both';
 export interface AuxiliaryCameraControlsProps {
@@ -41,16 +41,16 @@ export function AuxiliaryCameraControls(props: AuxiliaryCameraControlsProps) {
     }
   }, [status.error, status.errorUpdatedAt, access]);
   if (!access.ready || !hasPermission('camera:view') || status.isError || !status.data?.configured || !status.data.enabled) return null;
-  return <>{(['additional', 'both'] as const).map((source) => <CameraControl key={source} {...props} source={source} />)}</>;
+  return <>{(['additional', 'both'] as const).map((source) => <CameraControl key={source} {...props} source={source} iconId={source === 'additional' ? status.data.additional_icon : status.data.both_icon} />)}</>;
 }
 
-function CameraControl({ source, printerId, connected, viewMode, onSelectViewMode, onOpenEmbedded }: AuxiliaryCameraControlsProps & { source: Source }) {
+function CameraControl({ iconId, source, printerId, connected, viewMode, onSelectViewMode, onOpenEmbedded }: AuxiliaryCameraControlsProps & { source: Source; iconId?: string }) {
   const { t } = useTranslation();
   const { hasPermission } = useAuth();
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
   const allowed = connected && hasPermission('camera:view');
   const title = source === 'additional' ? t('camera.additionalCamera') : t('camera.bothCameras');
-  const Icon = source === 'additional' ? AdditionalCameraIcon : BothCamerasIcon;
+  const Icon = source === 'additional' ? resolveAdditionalCameraIcon(iconId) : resolveBothCameraIcon(iconId);
   const open = (mode: CameraViewMode) => {
     if (!allowed) return;
     if (mode === 'embedded') onOpenEmbedded(source, printerId);

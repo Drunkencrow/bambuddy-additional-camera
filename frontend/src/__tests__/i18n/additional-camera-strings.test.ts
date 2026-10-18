@@ -1,3 +1,4 @@
+import { CAMERA_ICON_LABEL_KEYS } from '../../components/AuxiliaryCameraIcons';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -18,6 +19,9 @@ const keys = new Set(components.flatMap((file) => {
 }));
 // Settings search/tab labels are passed indirectly to t().
 keys.add('settings.tabs.additionalCameras');
+keys.add('additionalCameras.additionalIcon');
+keys.add('additionalCameras.bothIcon');
+Object.values(CAMERA_ICON_LABEL_KEYS).forEach((key) => keys.add(key));
 
 describe('Additional Camera translations', () => {
   it.each(Object.entries(locales))('%s defines every feature key without relying on English fallbacks', (_file, locale) => {

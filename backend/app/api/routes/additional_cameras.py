@@ -16,7 +16,13 @@ from backend.app.core.database import get_db
 from backend.app.core.permissions import Permission
 from backend.app.models.additional_camera import AdditionalCamera
 from backend.app.models.printer import Printer
-from backend.app.schemas.additional_camera import AdditionalCameraResponse, AdditionalCameraSave, AdditionalCameraTest
+from backend.app.schemas.additional_camera import (
+    AdditionalCameraResponse,
+    AdditionalCameraSave,
+    AdditionalCameraTest,
+    normalized_additional_icon,
+    normalized_both_icon,
+)
 from backend.app.services import additional_camera, external_camera
 from backend.app.services.camera import apply_camera_rotation
 
@@ -64,6 +70,8 @@ async def save_configuration(
         db.add(camera)
     else:
         for key, value in data.model_dump().items():
+            if key in ("additional_icon", "both_icon") and key not in data.model_fields_set:
+                continue
             setattr(camera, key, value)
     try:
         await db.commit()
@@ -158,5 +166,7 @@ async def status(printer_id: int, _=RequireCameraStreamTokenIfAuthEnabled):
         "configured": camera is not None,
         "enabled": bool(camera and camera.enabled),
         "friendly_name": camera.friendly_name if camera else None,
+        "additional_icon": normalized_additional_icon(camera.additional_icon if camera else None),
+        "both_icon": normalized_both_icon(camera.both_icon if camera else None),
         **additional_camera.status(printer_id),
     }

@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "Піктограма додаткової камери",
+    bothIcon: "Піктограма обох камер",
+    icons: {
+      cameraPlus: "Камера + Плюс",
+      videoPlus: "Відеокамера + Плюс",
+      overhead: "Верхня камера",
+      chamber: "Камера в корпусі",
+      webcam: "Вебкамера",
+      securityCamera: "Камера спостереження",
+      boardCamera: "Камера на платі",
+      dualCamera: "Дві камери",
+      overlappingCameras: "Камери з перекриттям",
+      sideBySide: "Камери поруч",
+      splitCameraView: "Розділений вигляд камер",
+    },
     reconnecting: "Повторне підключення…",
     expand: "Розгорнути",
     minimize: "Згорнути",

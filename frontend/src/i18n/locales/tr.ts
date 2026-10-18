@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "Ek kamera simgesi",
+    bothIcon: "Her iki kamera simgesi",
+    icons: {
+      cameraPlus: "Kamera + Artı",
+      videoPlus: "Video + Artı",
+      overhead: "Üst kamera",
+      chamber: "Hazne kamerası",
+      webcam: "Web kamerası",
+      securityCamera: "Güvenlik kamerası",
+      boardCamera: "Kart kamerası",
+      dualCamera: "Çift kamera",
+      overlappingCameras: "Üst üste kameralar",
+      sideBySide: "Yan yana kameralar",
+      splitCameraView: "Bölünmüş kamera görünümü",
+    },
     reconnecting: "Yeniden bağlanıyor…",
     expand: "Genişlet",
     minimize: "Küçült",

@@ -1,5 +1,20 @@
 export default {
   additionalCameras: {
+    additionalIcon: "Значок дополнительной камеры",
+    bothIcon: "Значок обеих камер",
+    icons: {
+      cameraPlus: "Камера + Плюс",
+      videoPlus: "Видеокамера + Плюс",
+      overhead: "Верхняя камера",
+      chamber: "Камера в корпусе",
+      webcam: "Веб-камера",
+      securityCamera: "Камера наблюдения",
+      boardCamera: "Камера на плате",
+      dualCamera: "Две камеры",
+      overlappingCameras: "Перекрывающиеся камеры",
+      sideBySide: "Камеры рядом",
+      splitCameraView: "Разделённый вид камер",
+    },
     reconnecting: "Повторное подключение…",
     expand: "Развернуть",
     minimize: "Свернуть",

@@ -189,3 +189,144 @@ async def test_configuration_permissions(async_client, printer_factory):
         assert response.status_code == 403
     assert (await async_client.get(url, headers=admin)).status_code == 200
     assert (await async_client.delete(url, headers=admin)).status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_icon_retention_and_independence(async_client, printer_factory, db_session):
+    first, second = await printer_factory(), await printer_factory()
+    url = path(first.id)
+    defaults = (await async_client.put(url, json=PAYLOAD)).json()
+    assert (defaults["additional_icon"], defaults["both_icon"]) == ("camera-plus", "dual-camera")
+    selected = {"additional_icon": "webcam", "both_icon": "side-by-side"}
+    response = await async_client.put(url, json={**PAYLOAD, **selected})
+    assert response.json().items() >= selected.items()
+    # Old clients omit both fields, including on disable/re-enable and source edits.
+    for enabled in (False, True):
+        response = await async_client.put(
+            url,
+            json={
+                **PAYLOAD,
+                "enabled": enabled,
+                "friendly_name": "Changed",
+                "camera_type": "rtsp",
+                "camera_url": "rtsp://user:secret@camera/live",
+                "rotation": 180,
+            },
+        )
+        assert response.json().items() >= selected.items()
+    for field, value in (("additional_icon", "overhead"), ("both_icon", "split-camera-view")):
+        selected[field] = value
+        response = await async_client.put(url, json={**PAYLOAD, field: value})
+        assert response.json().items() >= selected.items()
+    other = (await async_client.put(path(second.id), json=PAYLOAD)).json()
+    assert (other["additional_icon"], other["both_icon"]) == ("camera-plus", "dual-camera")
+    assert (await async_client.get(url)).json().items() >= selected.items()
+    await async_client.delete(url)
+    recreated = (await async_client.put(url, json=PAYLOAD)).json()
+    assert (recreated["additional_icon"], recreated["both_icon"]) == ("camera-plus", "dual-camera")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "field,values",
+    [
+        (
+            "additional_icon",
+            ["camera-plus", "video-plus", "overhead", "chamber", "webcam", "security-camera", "board-camera"],
+        ),
+        ("both_icon", ["dual-camera", "overlapping-cameras", "side-by-side", "split-camera-view"]),
+    ],
+)
+async def test_valid_icons(async_client, printer_factory, field, values):
+    url = path((await printer_factory()).id)
+    for value in values:
+        assert (await async_client.put(url, json={**PAYLOAD, field: value})).json()[field] == value
+        assert (await async_client.get(url)).json()[field] == value
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("field", ["additional_icon", "both_icon"])
+@pytest.mark.parametrize(
+    "value",
+    [
+        None,
+        "",
+        "invalid",
+        "<svg/>",
+        "<b>camera</b>",
+        "https://camera/icon",
+        "/tmp/icon.svg",
+        "color:red",
+        "AdditionalCameraIcon",
+        "x" * 33,
+        "__proto__",
+        "constructor",
+        123,
+        {},
+    ],
+)
+async def test_invalid_icon_metadata(async_client, printer_factory, field, value):
+    url = path((await printer_factory()).id)
+    await async_client.put(url, json=PAYLOAD)
+    response = await async_client.put(url, json={**PAYLOAD, field: value})
+    assert response.status_code == 422
+    assert (await async_client.get(url)).json()[field] == (
+        "camera-plus" if field == "additional_icon" else "dual-camera"
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("field,value", [("additional_icon", "dual-camera"), ("both_icon", "camera-plus")])
+async def test_cross_family_icons(async_client, printer_factory, field, value):
+    response = await async_client.put(path((await printer_factory()).id), json={**PAYLOAD, field: value})
+    assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_status_icons_and_corrupt_storage(async_client, printer_factory, db_session, monkeypatch):
+    from backend.app.api.routes import additional_cameras
+
+    printer = await printer_factory()
+    url = path(printer.id)
+
+    # Route owns a short-lived session in production; use the fixture session here.
+    class SessionContext:
+        async def __aenter__(self):
+            return db_session
+
+        async def __aexit__(self, *args):
+            pass
+
+    monkeypatch.setattr(additional_cameras.database, "async_session", SessionContext)
+    initial = (await async_client.get(url + "/status")).json()
+    assert initial["configured"] is False
+    assert (initial["additional_icon"], initial["both_icon"]) == ("camera-plus", "dual-camera")
+    await async_client.put(
+        url,
+        json={
+            **PAYLOAD,
+            "camera_url": "http://user:secret@camera/video",
+            "additional_icon": "board-camera",
+            "both_icon": "overlapping-cameras",
+        },
+    )
+    status = (await async_client.get(url + "/status")).json()
+    assert (status["additional_icon"], status["both_icon"]) == ("board-camera", "overlapping-cameras")
+    assert set(status) == {
+        "configured",
+        "enabled",
+        "friendly_name",
+        "additional_icon",
+        "both_icon",
+        "active_sessions",
+        "frames_recent",
+        "last_frame_age_seconds",
+    }
+    assert "secret" not in str(status)
+    camera = await db_session.scalar(select(AdditionalCamera).where(AdditionalCamera.printer_id == printer.id))
+    camera.additional_icon = "<svg/>"
+    camera.both_icon = "webcam"
+    await db_session.commit()
+    for endpoint in (url, url + "/status"):
+        data = (await async_client.get(endpoint)).json()
+        assert (data["additional_icon"], data["both_icon"]) == ("camera-plus", "dual-camera")
