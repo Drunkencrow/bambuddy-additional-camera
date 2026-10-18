@@ -3251,6 +3251,7 @@ export default {
     understand: '확인했습니다'
   },
   camera: {
+    additionalCamera: '추가 카메라',
     primary: '기본',
     bothCameras: '두 카메라',
     bothOverlay: '두 카메라 오버레이',

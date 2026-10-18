@@ -3451,6 +3451,7 @@ export default {
 
   // Camera page
   camera: {
+    additionalCamera: 'Extra camera',
     primary: 'Primair',
     bothCameras: 'Beide camera’s',
     bothOverlay: 'Zwevend venster voor beide camera’s',

@@ -3421,6 +3421,7 @@ export default {
 
   // Camera page
   camera: {
+    additionalCamera: '追加カメラ',
     primary: 'プライマリ',
     bothCameras: '両方のカメラ',
     bothOverlay: '両方のカメラのオーバーレイ',

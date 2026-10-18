@@ -16,7 +16,6 @@ import {
   screen,
   waitFor,
   fireEvent,
-  act,
   within,
 } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
@@ -186,15 +185,8 @@ describe('PrintersPage — camera split button', () => {
           </Routes>
         </>
       );
-      const open = () =>
-        act(() => {
-          window.dispatchEvent(
-            new CustomEvent('bambuddy:additional-camera-test', {
-              detail: { printerId: 1, mode: 'embedded' },
-            })
-          );
-        });
-      open();
+      fireEvent.click(await screen.findByLabelText('Additional Camera — Camera View Mode'));
+      fireEvent.click(await screen.findByText(/Embedded Overlay/));
       const overlay = await screen.findByRole('region', {
         name: 'Additional Camera overlay',
       });
@@ -260,6 +252,10 @@ describe('PrintersPage — camera split button', () => {
   );
 
   beforeEach(() => {
+    server.use(
+      http.post('*/api/v1/printers/camera/stream-token', () => HttpResponse.json({ token: 'card-token' })),
+      http.get('*/api/v1/printers/:id/additional-camera/status', () => HttpResponse.json({ configured: false, enabled: false })),
+    );
     settingsWrites.length = 0;
     permissions.granted = ['camera:view', 'settings:update'];
     storage.clear();
@@ -371,4 +367,89 @@ describe('PrintersPage — camera split button', () => {
     await waitFor(() => expect(storage.get('cameraViewMode')).toBe('embedded'));
     expect(settingsWrites).toEqual([]);
   });
+  function availability(configured = true, enabled = true) {
+    server.use(http.get('*/api/v1/printers/:id/additional-camera/status', () =>
+      HttpResponse.json({ configured, enabled, friendly_name: 'Overhead', frames_recent: true })));
+  }
+
+  it.each([[false, false], [true, false]])('shows only Stock for configured=%s enabled=%s', async (configured, enabled) => {
+    availability(configured, enabled);
+    renderPage();
+    await cameraIcon();
+    await waitFor(() => expect(screen.queryByLabelText('Additional Camera')).toBeNull());
+    expect(screen.queryByLabelText('Both Cameras')).toBeNull();
+    expect(document.querySelector('svg.lucide-video')).not.toBeNull();
+  });
+
+  it('renders icon-only Stock, Additional, Both in order with matching styling', async () => {
+    availability();
+    renderPage();
+    const additional = await screen.findByLabelText('Additional Camera');
+    const both = screen.getByLabelText('Both Cameras');
+    const stock = await cameraIcon();
+    expect(additional.querySelector('.lucide-camera')).not.toBeNull();
+    expect(both.querySelector('.lucide-layout-grid')).not.toBeNull();
+    expect(stock.querySelector('.lucide-video')).not.toBeNull();
+    expect(additional.textContent).toBe('');
+    expect(both.textContent).toBe('');
+    expect(additional.className).toBe(stock.className);
+    expect(both.className).toBe(stock.className);
+    expect(additional.compareDocumentPosition(both) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(stock.compareDocumentPosition(additional) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByText('Overhead')).toBeNull();
+    expect(additional.parentElement?.parentElement).toHaveClass('flex-wrap');
+  });
+
+  it.each([['Additional Camera', 'additional'], ['Both Cameras', 'both']])('launches %s directly in a window and from its menu', async (label, source) => {
+    availability();
+    renderPage();
+    fireEvent.click(await screen.findByLabelText(label));
+    expect(openSpy).toHaveBeenLastCalledWith(`/camera/1/${source}`, `camera-${source}:1`, expect.any(String));
+    fireEvent.click(screen.getByLabelText(`${label} — Camera View Mode`));
+    expect(await screen.findByText(/Embedded Overlay/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText(/New Window/));
+    expect(openSpy).toHaveBeenCalledTimes(2);
+    expect(storage.get('cameraViewMode')).toBe('window');
+  });
+
+  it.each([['Additional Camera', 'Additional Camera overlay', 'additional'], ['Both Cameras', 'Both Cameras overlay', 'both']])('opens %s embedded and shares the existing saved mode', async (label, region, source) => {
+    availability();
+    renderPage();
+    fireEvent.click(await screen.findByLabelText(`${label} — Camera View Mode`));
+    fireEvent.click(await screen.findByText(/Embedded Overlay/));
+    const overlay = await screen.findByRole('region', { name: region });
+    await within(overlay).findAllByRole('img');
+    expect(storage.get(`openEmbeddedCameras_${source}`)).toBe('[{"id":1}]');
+    expect(storage.get('cameraViewMode')).toBe('embedded');
+    fireEvent.click(within(overlay).getByTitle('Close'));
+    fireEvent.click(screen.getByLabelText(label));
+    expect(await screen.findByRole('region', { name: region })).toBeInTheDocument();
+    expect(openSpy).not.toHaveBeenCalled();
+    fireEvent.click(await cameraIcon());
+    expect(await screen.findByTitle('Refresh stream')).toBeInTheDocument();
+  });
+
+  it('hides auxiliary controls without camera permission and leaves Stock disabled', async () => {
+    availability();
+    permissions.granted = [];
+    renderPage();
+    await waitFor(() => expect(document.getElementById('printer-card-1')).not.toBeNull());
+    expect(screen.queryByLabelText('Additional Camera')).toBeNull();
+    expect(screen.queryByLabelText('Both Cameras')).toBeNull();
+    const stock = document.querySelector('svg.lucide-video')!.closest('button')!;
+    expect(stock).toBeDisabled();
+    fireEvent.click(stock);
+    expect(openSpy).not.toHaveBeenCalled();
+  });
+
+  it.each([['Additional Camera', 'Additional Camera overlay'], ['Both Cameras', 'Both Cameras overlay']])('uses the existing embedded default for %s without rewriting preferences', async (label, region) => {
+    availability();
+    renderPage('embedded');
+    fireEvent.click(await screen.findByLabelText(label));
+    expect(await screen.findByRole('region', { name: region })).toBeInTheDocument();
+    expect(openSpy).not.toHaveBeenCalled();
+    expect(settingsWrites).toEqual([]);
+    expect(storage.has('cameraViewMode')).toBe(false);
+  });
+
 });

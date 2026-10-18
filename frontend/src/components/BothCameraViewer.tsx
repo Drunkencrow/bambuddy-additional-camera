@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Maximize, Minimize } from 'lucide-react';
+import { Camera, Fullscreen, GripVertical, Maximize, Minimize } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useCameraStreamAccess } from '../hooks/useCameraStreamToken';
@@ -9,6 +9,7 @@ import { cameraViewerIdentity } from '../utils/cameraIdentity';
 import { PrimaryCameraPane } from './PrimaryCameraPane';
 import { AdditionalCameraPane } from './AdditionalCameraViewer';
 import './bothCamera.css';
+import { cameraViewerPresentation as presentation } from './cameraViewerPresentation';
 
 interface Props {
   printerId: number;
@@ -71,20 +72,21 @@ function ConfiguredBothCameraViewer({ printerId, windowMode = false, minimized =
     >
       <div
         data-camera-drag-handle={windowMode ? undefined : true}
-        className="flex items-center justify-between gap-2 px-3 py-2 bg-bambu-dark border-b border-bambu-dark-tertiary shrink-0 cursor-grab"
+        className={windowMode ? presentation.windowHeader : presentation.embeddedHeader}
         style={{ touchAction: 'none' }}
       >
-        <h1 className="text-sm font-medium min-w-0 truncate" title={title}>
-          {title}
+        <h1 className={`${windowMode ? "font-medium " : ""}text-sm text-white flex items-center gap-2 min-w-0 truncate`} title={title}>
+          {windowMode ? <Camera className="w-4 h-4 shrink-0" /> : <GripVertical className="w-4 h-4 text-bambu-gray shrink-0" />}
+          <span className="truncate">{title}</span>
         </h1>
         <div className="flex items-center gap-1 no-drag shrink-0">
           {!minimized && (
             <button
-              className="p-1.5 rounded hover:bg-bambu-dark-tertiary"
+              className={windowMode ? presentation.windowButton : presentation.embeddedButton}
               onClick={toggleFullscreen}
               title={fullscreen ? t('camera.exitFullscreen') : t('camera.fullscreen')}
             >
-              {fullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              {fullscreen ? <Minimize className={windowMode ? presentation.windowIcon : presentation.embeddedIcon} /> : windowMode ? <Maximize className={presentation.windowIcon} /> : <Fullscreen className={presentation.embeddedIcon} />}
             </button>
           )}
           {headerActions}

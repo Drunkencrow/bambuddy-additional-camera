@@ -3421,6 +3421,7 @@ export default {
 
   // Camera page
   camera: {
+    additionalCamera: 'Zusätzliche Kamera',
     primary: 'Primär',
     bothCameras: 'Beide Kameras',
     bothOverlay: 'Überlagerung beider Kameras',

@@ -3408,6 +3408,7 @@ export default {
 
   // Camera page
   camera: {
+    additionalCamera: 'Videocamera aggiuntiva',
     primary: 'Principale',
     bothCameras: 'Entrambe le videocamere',
     bothOverlay: 'Finestra sovrapposta delle due videocamere',

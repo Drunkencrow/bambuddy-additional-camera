@@ -3243,6 +3243,7 @@ export default {
     understand: "Понятно",
   },
   camera: {
+    additionalCamera: 'Дополнительная камера',
     primary: 'Основная',
     bothCameras: 'Обе камеры',
     bothOverlay: 'Плавающее окно обеих камер',

@@ -322,6 +322,7 @@ export function AdditionalCameraSettings() {
                     initial={initial ?? null}
                     onSaved={(saved) => {
                       queryClient.setQueryData(['additional-camera', printer.id], saved);
+                      void queryClient.invalidateQueries({ queryKey: ['additional-camera-viewer-status', `additional:${printer.id}`] });
                       if (printerId === printer.id) setPrinterId(null);
                     }}
                   />

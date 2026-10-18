@@ -3423,6 +3423,7 @@ export default {
 
   // Kamera sayfası
   camera: {
+    additionalCamera: 'Ek kamera',
     primary: 'Birincil',
     bothCameras: 'Her iki kamera',
     bothOverlay: 'Her iki kamera için kayan pencere',

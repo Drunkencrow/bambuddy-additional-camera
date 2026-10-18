@@ -17,7 +17,7 @@ import { ToastProvider } from '../../contexts/ToastContext';
 import { AdditionalCameraPage } from '../../pages/AdditionalCameraPage';
 import { AdditionalCameraOverlay } from '../../components/AdditionalCameraOverlay';
 import { AdditionalCameraViewer } from '../../components/AdditionalCameraViewer';
-import { AdditionalCameraTestEntry } from '../../components/AdditionalCameraTestEntry';
+import { AuxiliaryCameraHarness } from './AuxiliaryCameraHarness';
 import { useStreamTokenSync } from '../../hooks/useCameraStreamToken';
 import { EmbeddedCameraViewer } from '../../components/EmbeddedCameraViewer';
 
@@ -545,19 +545,12 @@ describe('Additional Camera viewers', () => {
         <Link to="/settings">Settings</Link>
         <Link to="/printers">Printers</Link>
         <Routes>
-          <Route path="/printers" element={<AdditionalCameraTestEntry />} />
+          <Route path="/printers" element={<AuxiliaryCameraHarness />} />
           <Route path="/settings" element={<div>Settings page</div>} />
         </Routes>
       </MemoryRouter>,
     );
-    const open = () =>
-      act(() => {
-        window.dispatchEvent(
-          new CustomEvent('bambuddy:additional-camera-test', {
-            detail: { printerId: 1, mode: 'embedded' },
-          }),
-        );
-      });
+    const open = () => { const button = screen.queryByText('Test open additional'); if (button) fireEvent.click(button); };
     open();
     const img = await image();
     fireEvent.click(screen.getByRole('link', { name: 'Settings' }));
@@ -835,42 +828,17 @@ describe('Additional Camera viewers', () => {
     expect(stock.getAttribute('src')).toBe(stockSrc);
   });
 
-  it('opens no transport until the temporary console entry is explicitly invoked', async () => {
-    const open = vi.spyOn(window, 'open').mockReturnValue(null);
-    mount(<AdditionalCameraTestEntry />);
-    expect(screen.queryByRole('img')).toBeNull();
-    expect(statusTokens).toEqual([]);
-    act(() => {
-      window.dispatchEvent(
-        new CustomEvent('bambuddy:additional-camera-test', {
-          detail: { printerId: 1, mode: 'window' },
-        }),
-      );
-    });
-    expect(open).toHaveBeenCalledWith(
-      '/camera/1/additional',
-      'camera-additional:1',
-      expect.any(String),
-    );
-    act(() => {
-      window.dispatchEvent(
-        new CustomEvent('bambuddy:additional-camera-test', {
-          detail: { printerId: 1, mode: 'embedded' },
-        }),
-      );
-    });
-    expect((await image()).getAttribute('src')).toContain(
-      '/additional-camera/stream',
-    );
-    act(() => {
-      window.dispatchEvent(
-        new CustomEvent('bambuddy:additional-camera-test', {
-          detail: { printerId: 1, mode: 'embedded' },
-        }),
-      );
-    });
-    expect(
-      screen.getAllByRole('region', { name: 'Additional Camera overlay' }),
-    ).toHaveLength(1);
-  });
 });
+
+ it('keeps the embedded title and controls in one drag header, with independent resize', async () => {
+  mount(<AdditionalCameraOverlay printerId={1} onClose={vi.fn()} />);
+  const title = await screen.findByRole('heading', { name: 'Overhead view' });
+  const header = title.closest('[data-camera-drag-handle]');
+  expect(header).not.toBeNull();
+  expect(header).toContainElement(screen.getByTitle('Fullscreen'));
+  expect(header).toContainElement(screen.getByTitle('Close'));
+  expect(screen.getByRole('separator', { name: 'Resize camera viewer' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Live' })).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.click(screen.getByRole('button', { name: 'Snapshot' }));
+  expect(screen.getByRole('button', { name: 'Snapshot' })).toHaveAttribute('aria-pressed', 'true');
+ });

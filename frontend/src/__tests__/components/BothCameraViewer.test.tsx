@@ -10,7 +10,7 @@ import { BothCameraPage } from '../../pages/BothCameraPage';
 import { BothCameraViewer } from '../../components/BothCameraViewer';
 import { BothCameraOverlay } from '../../components/BothCameraOverlay';
 import { EmbeddedCameraViewer } from '../../components/EmbeddedCameraViewer';
-import { AdditionalCameraTestEntry } from '../../components/AdditionalCameraTestEntry';
+import { AuxiliaryCameraHarness } from './AuxiliaryCameraHarness';
 import { useOpenEmbeddedCameras } from '../../hooks/useOpenEmbeddedCameras';
 
 const auth = vi.hoisted(() => ({ loading: false, authEnabled: true, user: { id: 3 }, hasPermission: () => true }));
@@ -49,12 +49,8 @@ async function feeds(parent: ParentNode = document) {
     extra: within(pane('additional', parent)).getByRole('img'),
   };
 }
-function launch(viewer: 'both' | 'additional' | undefined, mode = 'embedded') {
-  act(() =>
-    window.dispatchEvent(
-      new CustomEvent('bambuddy:additional-camera-test', { detail: { printerId: 1, viewer, mode } }),
-    ),
-  );
+function launch(viewer: 'both' | 'additional' | undefined) {
+  fireEvent.click(screen.getByText(`Test open ${viewer ?? 'additional'}`));
 }
 function pointer(target: Element | Document, type: string, x: number, y: number) {
   fireEvent(target, new MouseEvent(type, { bubbles: true, clientX: x, clientY: y, button: 0 }));
@@ -374,7 +370,7 @@ function ThreeOverlays() {
     <>
       <button onClick={() => setStock(new Map([[1, { id: 1 }]]))}>Open Stock</button>
       {stock.has(1) && <EmbeddedCameraViewer printerId={1} printerName="Stock" onClose={() => setStock(new Map())} />}
-      <AdditionalCameraTestEntry />
+      <AuxiliaryCameraHarness />
     </>
   );
 }
@@ -394,7 +390,7 @@ async function three() {
   await within(overlay('additional')).findByRole('img');
 }
 
-describe('Both Cameras overlays, launcher, and restoration', () => {
+describe('Both Cameras overlays and restoration', () => {
   it('registers only one Both frame; all three identities coexist with bounded focus', async () => {
     await three();
     expect(
@@ -527,44 +523,6 @@ describe('Both Cameras overlays, launcher, and restoration', () => {
     },
   );
 
-  it('keeps the old launcher syntax Additional and opens Both in an independent popup', async () => {
-    const open = vi.spyOn(window, 'open').mockReturnValue(null);
-    mount(<AdditionalCameraTestEntry />);
-    launch(undefined, 'window');
-    expect(open).toHaveBeenCalledWith('/camera/1/additional', 'camera-additional:1', expect.any(String));
-    launch('both', 'window');
-    await waitFor(() =>
-      expect(open).toHaveBeenCalledWith(
-        '/camera/1/both',
-        'camera-both:1',
-        expect.stringContaining('width=1000,height=560'),
-      ),
-    );
-    launch('both');
-    await waitFor(() => expect(overlay('both')).not.toBeNull());
-    await feeds(overlay('both'));
-    launch('both');
-    await waitFor(() => expect(overlays()).toHaveLength(1));
-  });
-
-  it.each([false, true])(
-    'Both launcher fails safely if Additional is absent or disabled (configured=%s)',
-    async (configured) => {
-      additional = { ...healthy, configured, enabled: false };
-      const open = vi.spyOn(window, 'open').mockReturnValue(null);
-      const status = vi.spyOn(api, 'getAdditionalCameraStatus');
-      mount(<AdditionalCameraTestEntry />);
-      launch('both', 'window');
-      launch('both');
-      await waitFor(() => expect(status).toHaveBeenCalledTimes(2));
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 30));
-      });
-      expect(open).not.toHaveBeenCalled();
-      expect(overlays()).toHaveLength(0);
-    },
-  );
-
   it('loads the dedicated route and saves only Both popup geometry and title', async () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
     clients.push(client);
@@ -595,4 +553,17 @@ describe('Both Cameras overlays, launcher, and restoration', () => {
     expect(localStorage.getItem('cameraWindowState')).toBe('stock');
     expect(localStorage.getItem('cameraWindowState_additional:1')).toBe('additional');
   });
+});
+
+it('keeps the Both window header separate from its labelled pane headers', async () => {
+  mount(<BothCameraOverlay printerId={1} onClose={vi.fn()} />);
+  await feeds();
+  const title = screen.getByRole('heading', { name: /— Both Cameras/ });
+  const header = title.closest('[data-camera-drag-handle]');
+  expect(header).not.toBeNull();
+  expect(within(header as HTMLElement).getByTitle('Fullscreen')).toBeInTheDocument();
+  expect(within(header as HTMLElement).getByTitle('Close')).toBeInTheDocument();
+  expect(within(pane('primary')).getByRole('heading', { name: 'Primary' })).toBeInTheDocument();
+  expect(within(pane('additional')).getByRole('heading', { name: 'Overhead view' })).toBeInTheDocument();
+  expect(screen.getByRole('separator', { name: 'Resize camera viewer' })).toBeInTheDocument();
 });

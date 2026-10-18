@@ -17,7 +17,7 @@ import { api, getAuthToken, getStreamToken, withStreamToken } from '../api/clien
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useCameraViewport } from '../hooks/useCameraViewport';
-import { useCameraStreamAccess, useStreamTokenSync } from '../hooks/useCameraStreamToken';
+import { useCameraStreamAccess } from '../hooks/useCameraStreamToken';
 import { ChamberLight } from './icons/ChamberLight';
 import { SkipObjectsModal, SkipObjectsIcon } from './SkipObjectsModal';
 import { CameraDiagnoseModal } from './CameraDiagnoseModal';
@@ -69,7 +69,8 @@ function PrimaryCameraContent({
   // Subscribe to the stream-token query so this page re-renders once the token
   // arrives. useStreamTokenSync (mounted in App) already owns the fetch; this
   // useQuery call dedupes via the shared key and just reads the cached value.
-  useStreamTokenSync();
+  // App alone publishes global tokens. A pane must not clear those tokens
+  // when it unmounts while another viewer is still using them.
   const { data: streamTokenData, isPending: streamTokenPending } = useQuery({
     queryKey: ['camera-stream-token', user?.id ?? null],
     queryFn: () => api.getCameraStreamToken(),

@@ -3409,6 +3409,7 @@ export default {
 
   // Camera page
   camera: {
+    additionalCamera: 'Caméra supplémentaire',
     primary: 'Principale',
     bothCameras: 'Les deux caméras',
     bothOverlay: 'Fenêtre flottante des deux caméras',

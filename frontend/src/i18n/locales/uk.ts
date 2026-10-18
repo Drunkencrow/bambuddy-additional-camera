@@ -3448,6 +3448,7 @@ export default {
 
   // Camera page
   camera: {
+    additionalCamera: 'Додаткова камера',
     primary: 'Основна',
     bothCameras: 'Обидві камери',
     bothOverlay: 'Плаваюче вікно обох камер',

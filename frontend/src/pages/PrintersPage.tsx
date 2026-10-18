@@ -171,7 +171,8 @@ import { Button } from '../components/Button';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { BulkPrinterToolbar, type PrinterState } from '../components/BulkPrinterToolbar';
 import { FileManagerModal } from '../components/FileManagerModal';
-import { AdditionalCameraTestEntry } from '../components/AdditionalCameraTestEntry';
+import { AuxiliaryCameraControls } from '../components/AuxiliaryCameraControls';
+import { useAuxiliaryCameraViewers } from '../hooks/useAuxiliaryCameraViewers';
 import { EmbeddedCameraViewer } from '../components/EmbeddedCameraViewer';
 import { CameraWall } from '../components/CameraWall';
 import { ContextMenu, type ContextMenuItem } from '../components/ContextMenu';
@@ -2053,6 +2054,7 @@ function PrinterCard({
   timeFormat = 'system',
   cameraViewMode = 'window',
   onOpenEmbeddedCamera,
+  onOpenEmbeddedAuxiliaryCamera,
   onSelectCameraViewMode,
   checkPrinterFirmware = true,
   dryingPresets = DRYING_PRESETS,
@@ -2095,6 +2097,7 @@ function PrinterCard({
   timeFormat?: 'system' | '12h' | '24h';
   cameraViewMode?: CameraViewMode;
   onOpenEmbeddedCamera?: (printerId: number, printerName: string) => void;
+  onOpenEmbeddedAuxiliaryCamera: (source: 'additional' | 'both', printerId: number) => void;
   onSelectCameraViewMode?: (mode: CameraViewMode) => void;
   checkPrinterFirmware?: boolean;
   dryingPresets?: Record<string, DryingPreset>;
@@ -6695,6 +6698,13 @@ function PrinterCard({
                     <ChevronDown className="w-3 h-3" />
                   </Button>
                 </div>
+                <AuxiliaryCameraControls
+                  printerId={printer.id}
+                  connected={!!status?.connected}
+                  viewMode={cameraViewMode}
+                  onSelectViewMode={(mode) => onSelectCameraViewMode?.(mode)}
+                  onOpenEmbedded={onOpenEmbeddedAuxiliaryCamera}
+                />
                 {cameraMenuAnchor && (
                   <ContextMenu
                     x={cameraMenuAnchor.x}
@@ -8882,6 +8892,7 @@ export function PrintersPage() {
   );
   // Embedded camera viewer state - supports multiple simultaneous viewers
   // Persisted to localStorage so cameras reopen after navigation
+  const auxiliaryCameras = useAuxiliaryCameraViewers();
   const [embeddedCameraPrinters, setEmbeddedCameraPrinters] = useOpenEmbeddedCameras<{ id: number; name: string }>('primary');
 
   const { data: printers, isLoading } = useQuery({
@@ -9951,6 +9962,7 @@ export function PrintersPage() {
                       onUnassignSpoolmanSpool={(id) => unassignSpoolmanMutation.mutate(id)}
                       timeFormat={settings?.time_format || 'system'}
                       cameraViewMode={cameraViewMode}
+                      onOpenEmbeddedAuxiliaryCamera={auxiliaryCameras.open}
                       onOpenEmbeddedCamera={(id, name) => setEmbeddedCameraPrinters(prev => new Map(prev).set(id, { id, name }))}
                       onSelectCameraViewMode={selectCameraViewMode}
                       checkPrinterFirmware={firmwareChecksOn}
@@ -10004,6 +10016,7 @@ export function PrintersPage() {
               } : undefined}
               timeFormat={settings?.time_format || 'system'}
               cameraViewMode={cameraViewMode}
+              onOpenEmbeddedAuxiliaryCamera={auxiliaryCameras.open}
               onOpenEmbeddedCamera={(id, name) => setEmbeddedCameraPrinters(prev => new Map(prev).set(id, { id, name }))}
               onSelectCameraViewMode={selectCameraViewMode}
               checkPrinterFirmware={firmwareChecksOn}
@@ -10092,7 +10105,7 @@ export function PrintersPage() {
         />
       )}
 
-      <AdditionalCameraTestEntry />
+      {auxiliaryCameras.viewers}
 
       {/* Embedded Camera Viewers - multiple viewers can be open simultaneously */}
       {Array.from(embeddedCameraPrinters.values()).map((camera, index) => (

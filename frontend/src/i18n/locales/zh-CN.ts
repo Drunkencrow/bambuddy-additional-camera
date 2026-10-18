@@ -3408,6 +3408,7 @@ export default {
 
   // Camera page
   camera: {
+    additionalCamera: '附加摄像头',
     primary: '主摄像头',
     bothCameras: '双摄像头',
     bothOverlay: '双摄像头悬浮窗',

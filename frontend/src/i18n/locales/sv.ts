@@ -3450,6 +3450,7 @@ errors: {
 
   // Camera page
   camera: {
+    additionalCamera: 'Extra kamera',
     primary: 'Primär',
     bothCameras: 'Båda kamerorna',
     bothOverlay: 'Flytande fönster för båda kamerorna',

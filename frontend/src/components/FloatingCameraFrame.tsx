@@ -150,7 +150,7 @@ export function FloatingCameraFrame({
       {...focusHandlers}
       aria-label={label}
       data-camera-overlay={identity}
-      className="fixed z-40 rounded-lg shadow-2xl border border-bambu-dark-tertiary bg-black overflow-hidden"
+      className="fixed z-40 rounded-lg shadow-2xl border border-bambu-dark-tertiary bg-bambu-dark-secondary overflow-hidden"
       style={{
         zIndex,
         left: geometry.x,
@@ -172,18 +172,19 @@ export function FloatingCameraFrame({
           role="separator"
           aria-label="Resize camera viewer"
           aria-orientation="horizontal"
-          className="absolute right-0 bottom-0 w-4 h-4 cursor-se-resize touch-none"
+          className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize no-drag hover:bg-white/10 rounded-tl transition-colors touch-none"
           onPointerDown={(event) => {
             event.stopPropagation();
             begin(event, 'resize');
           }}
         >
           <svg
-            viewBox="0 0 16 16"
-            className="w-4 h-4 text-bambu-gray"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-6 h-6 text-bambu-gray/70 hover:text-bambu-gray"
             aria-hidden="true"
           >
-            <path d="M4 14L14 4M9 14L14 9" stroke="currentColor" />
+            <path d="M22 22H20V20H22V22ZM22 18H20V16H22V18ZM18 22H16V20H18V22ZM22 14H20V12H22V14ZM18 18H16V16H18V18ZM14 22H12V20H14V22ZM22 10H20V8H22V10ZM18 14H16V12H18V14ZM14 18H12V16H14V18ZM10 22H8V20H10V22Z" />
           </svg>
         </div>
       )}

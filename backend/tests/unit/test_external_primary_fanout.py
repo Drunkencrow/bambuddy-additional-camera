@@ -287,3 +287,37 @@ async def test_orphan_cleanup_protects_shared_primary_and_additional_but_reaps_o
     assert primary.returncode == 0
     assert extra_proc.returncode is None
     assert additional_camera._sessions == sessions
+
+
+@pytest.mark.parametrize("kind", ["builtin-chamber", "rtsp"])
+@pytest.mark.parametrize("leaving", ["stock", "both"])
+@pytest.mark.parametrize("stop_before_disconnect", [False, True])
+async def test_stock_and_both_close_orders_preserve_primary_subscription(source, kind, leaving, stop_before_disconnect):
+    """Both owns one normal Primary subscription, even when stop races disconnect."""
+    if kind == "builtin-chamber":
+        source.printer.external_camera_enabled = False
+        source.printer.model = "P1S"
+    stock = await source.open()
+    both = await source.open()
+    closing, survivor = (stock, both) if leaving == "stock" else (both, stock)
+    if stop_before_disconnect:
+        assert (await camera.stop_camera_stream(PRINTER_ID, _=None))["skipped"]
+    await closing.body_iterator.aclose()
+    if not stop_before_disconnect:
+        assert (await camera.stop_camera_stream(PRINTER_ID, _=None))["skipped"]
+    assert camera_fanout.get_subscriber_count(f"printer-{PRINTER_ID}") == 1
+    # Cross the real fixture grace period: a leaving subscriber must never
+    # schedule upstream teardown while its peer remains subscribed.
+    await asyncio.sleep(0.04)
+    assert source.opens == 1
+    assert source.closes == 0
+    source.ticks.put_nowait(None)
+    assert await asyncio.wait_for(anext(survivor.body_iterator), 1) == CHUNK
+    # The mocked built-in generator only emits chunks; external's real route
+    # wrapper additionally publishes status/frame timing in this fixture.
+    if kind == "rtsp":
+        status = await camera.camera_status(PRINTER_ID, _=None)
+        assert status["active"] and not status["stalled"]
+    await source.open()
+    assert source.opens == 1
+    assert camera_fanout.get_subscriber_count(f"printer-{PRINTER_ID}") == 2
