@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "正在重新连接…",
+    expand: "展开",
+    minimize: "最小化",
+
+    overlay: "附加相机浮层",
+    resizeViewer: "调整相机查看器大小",
+
+    error: "相机操作失败",
+    saved: "附加相机已保存",
+    friendlyName: "显示名称",
+    enabled: "已启用",
+    cameraType: "相机类型",
+    usbDevice: "USB 设备",
+    cameraUrl: "相机 URL",
+    refreshUsb: "刷新 USB 设备",
+    usbError: "USB 发现失败。您可以手动输入设备路径。",
+    snapshotUrl: "快照 URL（可选）",
+    rotation: "旋转",
+    test: "测试相机",
+    remove: "移除相机",
+    working: "处理中…",
+    testSuccess: "相机连接成功",
+    testFailure: "相机连接失败",
+    coalesced: "共享捕获；未打开新连接。",
+    removeConfirm: "移除此打印机的附加相机配置？",
+    removed: "附加相机已移除",
+    description: "为每台打印机配置一个附加相机。",
+    printer: "打印机",
+    noAvailablePrinters: "没有其他可配置的打印机",
+    selectPrinter: "选择打印机",
+    printersError: "无法加载打印机",
+    noPrinters: "请添加打印机以配置附加相机。",
+    permission: "需要修改打印机的权限。",
+    loadError: "无法加载相机配置",
+    configured: "已配置的附加相机",
+    viewerTitle: "附加相机",
+  },
   // Navigation
   nav: {
     printers: '打印机',
@@ -1915,6 +1953,7 @@ export default {
     general: '通用',
     // Tab names
     tabs: {
+      additionalCameras: "附加相机",
       general: '通用',
       smartPlugs: '智能插座',
       sensors: '传感器',

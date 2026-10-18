@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "Yeniden bağlanıyor…",
+    expand: "Genişlet",
+    minimize: "Küçült",
+
+    overlay: "Ek kamera katmanı",
+    resizeViewer: "Kamera görüntüleyicisini yeniden boyutlandır",
+
+    error: "Kamera işlemi başarısız",
+    saved: "Ek kamera kaydedildi",
+    friendlyName: "Görünen ad",
+    enabled: "Etkin",
+    cameraType: "Kamera türü",
+    usbDevice: "USB aygıtı",
+    cameraUrl: "Kamera URL’si",
+    refreshUsb: "USB aygıtlarını yenile",
+    usbError: "USB keşfi başarısız. Aygıt yolunu elle girebilirsiniz.",
+    snapshotUrl: "Anlık görüntü URL’si (isteğe bağlı)",
+    rotation: "Döndürme",
+    test: "Kamerayı test et",
+    remove: "Kamerayı kaldır",
+    working: "İşleniyor…",
+    testSuccess: "Kamera bağlantısı başarılı",
+    testFailure: "Kamera bağlantısı başarısız",
+    coalesced: "Paylaşılan görüntü alımı; yeni bağlantı açılmadı.",
+    removeConfirm: "Bu yazıcının ek kamera yapılandırması kaldırılsın mı?",
+    removed: "Ek kamera kaldırıldı",
+    description: "Her yazıcı için bir ek kamera yapılandırın.",
+    printer: "Yazıcı",
+    noAvailablePrinters: "Yapılandırılabilecek başka yazıcı yok",
+    selectPrinter: "Bir yazıcı seçin",
+    printersError: "Yazıcılar yüklenemedi",
+    noPrinters: "Ek kamera yapılandırmak için bir yazıcı ekleyin.",
+    permission: "Yazıcı değiştirme izni gerekiyor.",
+    loadError: "Kamera yapılandırması yüklenemedi",
+    configured: "Yapılandırılmış ek kameralar",
+    viewerTitle: "Ek kamera",
+  },
   // Navigasyon
   nav: {
     printers: 'Yazıcılar',
@@ -1917,6 +1955,7 @@ export default {
     general: 'Genel',
     // Sekme adları
     tabs: {
+      additionalCameras: "Ek kameralar",
       general: 'Genel',
       smartPlugs: 'Akıllı Prizler',
       sensors: 'Sensörler',

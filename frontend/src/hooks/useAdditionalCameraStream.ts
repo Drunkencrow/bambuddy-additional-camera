@@ -7,19 +7,19 @@ import { cameraViewerIdentity } from '../utils/cameraIdentity';
 type StreamPhase = 'loading' | 'live' | 'reconnecting' | 'unavailable';
 
 /** One mounted viewer owns one request. No primary registry or stop operation. */
-export function useAdditionalCameraStream(printerId: number) {
-  const access = useCameraStreamAccess();
+export function useAdditionalCameraStream(printerId: number, initialToken?: string, paused = false) {
+  const access = useCameraStreamAccess(initialToken);
   const validId = Number.isSafeInteger(printerId) && printerId > 0;
   const status = useQuery({
     queryKey: ['additional-camera-viewer-status', cameraViewerIdentity('additional', printerId), access.token],
     queryFn: () => api.getAdditionalCameraStatus(printerId, access.token),
-    enabled: validId && access.ready,
+    enabled: validId && access.ready && !paused,
     retry: false,
     staleTime: 0,
     refetchInterval: 5000,
     refetchOnWindowFocus: false,
   });
-  const available = validId && access.ready && !status.isError && !!status.data?.configured && !!status.data.enabled;
+  const available = !paused && validId && access.ready && !status.isError && !!status.data?.configured && !!status.data.enabled;
   const unavailable =
     !validId ||
     access.unavailable ||
@@ -80,6 +80,12 @@ export function useAdditionalCameraStream(printerId: number) {
   };
 
   useEffect(() => clearReconnect, [clearReconnect]);
+  useEffect(() => {
+    clearReconnect();
+    attempts.current = 0;
+    stallStrikes.current = 0;
+    setPhase('loading');
+  }, [paused, clearReconnect]);
   useEffect(() => {
     if (!available) clearReconnect();
   }, [available, clearReconnect]);

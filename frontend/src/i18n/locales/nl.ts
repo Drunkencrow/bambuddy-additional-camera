@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "Opnieuw verbinden…",
+    expand: "Uitvouwen",
+    minimize: "Minimaliseren",
+
+    overlay: "Extra camera-overlay",
+    resizeViewer: "Cameravenster vergroten of verkleinen",
+
+    error: "Camerabewerking mislukt",
+    saved: "Extra camera opgeslagen",
+    friendlyName: "Weergavenaam",
+    enabled: "Ingeschakeld",
+    cameraType: "Cameratype",
+    usbDevice: "USB-apparaat",
+    cameraUrl: "Camera-URL",
+    refreshUsb: "USB-apparaten vernieuwen",
+    usbError: "USB-detectie mislukt. Je kunt het apparaatpad handmatig invoeren.",
+    snapshotUrl: "Momentopname-URL (optioneel)",
+    rotation: "Draaiing",
+    test: "Camera testen",
+    remove: "Camera verwijderen",
+    working: "Bezig…",
+    testSuccess: "Cameraverbinding geslaagd",
+    testFailure: "Cameraverbinding mislukt",
+    coalesced: "Gedeelde opname; er is geen nieuwe verbinding geopend.",
+    removeConfirm: "De extra cameraconfiguratie van deze printer verwijderen?",
+    removed: "Extra camera verwijderd",
+    description: "Configureer één extra camera per printer.",
+    printer: "Printer",
+    noAvailablePrinters: "Geen printers meer beschikbaar om te configureren",
+    selectPrinter: "Selecteer een printer",
+    printersError: "Printers laden mislukt",
+    noPrinters: "Voeg een printer toe om een extra camera te configureren.",
+    permission: "Toestemming om printers te wijzigen is vereist.",
+    loadError: "Cameraconfiguratie laden mislukt",
+    configured: "Geconfigureerde extra camera’s",
+    viewerTitle: "Extra camera",
+  },
   // Navigation
   nav: {
     printers: 'Printers',
@@ -1934,6 +1972,7 @@ export default {
     general: 'Algemeen',
     // Tab names
     tabs: {
+      additionalCameras: "Extra camera’s",
       general: 'Algemeen',
       smartPlugs: 'Slimme stekkers',
       sensors: 'Sensoren',

@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "Verbindung wird wiederhergestellt…",
+    expand: "Erweitern",
+    minimize: "Minimieren",
+
+    overlay: "Zusätzliche Kamera als Overlay",
+    resizeViewer: "Kamerafenstergröße ändern",
+
+    error: "Kameravorgang fehlgeschlagen",
+    saved: "Zusätzliche Kamera gespeichert",
+    friendlyName: "Anzeigename",
+    enabled: "Aktiviert",
+    cameraType: "Kameratyp",
+    usbDevice: "USB-Gerät",
+    cameraUrl: "Kamera-URL",
+    refreshUsb: "USB-Geräte aktualisieren",
+    usbError: "USB-Erkennung fehlgeschlagen. Sie können den Gerätepfad manuell eingeben.",
+    snapshotUrl: "Schnappschuss-URL (optional)",
+    rotation: "Drehung",
+    test: "Kamera testen",
+    remove: "Kamera entfernen",
+    working: "Wird ausgeführt…",
+    testSuccess: "Kameraverbindung erfolgreich",
+    testFailure: "Kameraverbindung fehlgeschlagen",
+    coalesced: "Gemeinsame Aufnahme; es wurde keine neue Verbindung geöffnet.",
+    removeConfirm: "Konfiguration der zusätzlichen Kamera dieses Druckers entfernen?",
+    removed: "Zusätzliche Kamera entfernt",
+    description: "Eine zusätzliche Kamera pro Drucker konfigurieren.",
+    printer: "Drucker",
+    noAvailablePrinters: "Keine weiteren Drucker zum Konfigurieren verfügbar",
+    selectPrinter: "Drucker auswählen",
+    printersError: "Drucker konnten nicht geladen werden",
+    noPrinters: "Fügen Sie einen Drucker hinzu, um eine zusätzliche Kamera zu konfigurieren.",
+    permission: "Berechtigung zum Ändern von Druckern erforderlich.",
+    loadError: "Kamerakonfiguration konnte nicht geladen werden",
+    configured: "Konfigurierte zusätzliche Kameras",
+    viewerTitle: "Zusätzliche Kamera",
+  },
   // Navigation
   nav: {
     printers: 'Drucker',
@@ -1916,6 +1954,7 @@ export default {
     general: 'Allgemein',
     // Tab names
     tabs: {
+      additionalCameras: "Zusätzliche Kameras",
       general: 'Allgemein',
       smartPlugs: 'Smart Plugs',
       sensors: 'Sensoren',

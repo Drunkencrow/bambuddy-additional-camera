@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "Återansluter…",
+    expand: "Expandera",
+    minimize: "Minimera",
+
+    overlay: "Överlägg för extra kamera",
+    resizeViewer: "Ändra kameravisningens storlek",
+
+    error: "Kameraåtgärden misslyckades",
+    saved: "Extra kamera sparad",
+    friendlyName: "Visningsnamn",
+    enabled: "Aktiverad",
+    cameraType: "Kameratyp",
+    usbDevice: "USB-enhet",
+    cameraUrl: "Kamera-URL",
+    refreshUsb: "Uppdatera USB-enheter",
+    usbError: "USB-identifiering misslyckades. Du kan ange enhetssökvägen manuellt.",
+    snapshotUrl: "Ögonblicksbilds-URL (valfri)",
+    rotation: "Vridning",
+    test: "Testa kamera",
+    remove: "Ta bort kamera",
+    working: "Arbetar…",
+    testSuccess: "Kameraanslutningen lyckades",
+    testFailure: "Kameraanslutningen misslyckades",
+    coalesced: "Delad bildhämtning; ingen ny anslutning öppnades.",
+    removeConfirm: "Ta bort den här skrivarens extra kamerakonfiguration?",
+    removed: "Extra kamera borttagen",
+    description: "Konfigurera en extra kamera per skrivare.",
+    printer: "Skrivare",
+    noAvailablePrinters: "Inga fler skrivare finns att konfigurera",
+    selectPrinter: "Välj en skrivare",
+    printersError: "Kunde inte läsa in skrivare",
+    noPrinters: "Lägg till en skrivare för att konfigurera en extra kamera.",
+    permission: "Behörighet att ändra skrivare krävs.",
+    loadError: "Kunde inte läsa in kamerakonfigurationen",
+    configured: "Konfigurerade extra kameror",
+    viewerTitle: "Extra kamera",
+  },
   // Navigation
   nav: {
     printers: 'Skrivare',
@@ -1933,6 +1971,7 @@ export default {
     general: 'Allmänt',
     // Tab names
     tabs: {
+      additionalCameras: "Extra kameror",
       general: 'Allmänt',
       smartPlugs: 'Smarta kontakter',
       sensors: 'Sensorer',

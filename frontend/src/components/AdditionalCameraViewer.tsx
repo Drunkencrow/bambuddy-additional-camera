@@ -8,6 +8,7 @@ import { cameraViewerIdentity } from '../utils/cameraIdentity';
 
 interface Props {
   printerId: number;
+  initialToken?: string;
   windowMode?: boolean;
   headerActions?: ReactNode;
   minimized?: boolean;
@@ -15,9 +16,9 @@ interface Props {
 }
 
 /** Shared Additional presentation for popup and overlay, independent of printer controls. */
-export function AdditionalCameraViewer({ printerId, windowMode = false, headerActions, minimized = false, pane = false }: Props) {
+export function AdditionalCameraViewer({ printerId, windowMode = false, headerActions, minimized = false, pane = false, initialToken }: Props) {
   const { t } = useTranslation();
-  const stream = useAdditionalCameraStream(printerId);
+  const stream = useAdditionalCameraStream(printerId, initialToken, minimized);
   const { url, phase, loaded, retry } = stream;
   const title = stream.friendlyName?.trim() || t('additionalCameras.viewerTitle', 'Additional Camera');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -27,11 +28,11 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
 
   useEffect(() => {
     if (!windowMode || pane) return;
-    document.title = `${title} - Camera`;
+    document.title = `${title} - ${t('settings.camera')}`;
     return () => {
       document.title = 'Bambuddy';
     };
-  }, [title, windowMode, pane]);
+  }, [title, windowMode, pane, t]);
 
   useEffect(() => {
     const image = imgRef.current;
@@ -43,7 +44,7 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
       window.removeEventListener('pagehide', disconnect);
       window.removeEventListener('beforeunload', disconnect);
     };
-  }, [url]);
+  }, [url, minimized]);
 
   useEffect(() => {
     // Some browsers expose MJPEG dimensions before firing a load event.
@@ -191,7 +192,7 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
               <p>{t('camera.cameraUnavailable', 'Camera unavailable')}</p>
               {stream.phase === 'reconnecting' && (
                 <p role="status" className="text-sm text-bambu-gray">
-                  {t('camera.connectionLost', 'Connection lost')} — {t('common.reconnecting', 'Reconnecting...')}
+                  {t('camera.connectionLost', 'Connection lost')} — {t('additionalCameras.reconnecting', 'Reconnecting…')}
                 </p>
               )}
               <button onClick={stream.retry} className="px-4 py-2 bg-bambu-green rounded hover:bg-bambu-green/80">
@@ -227,6 +228,6 @@ export function AdditionalCameraViewer({ printerId, windowMode = false, headerAc
 }
 
 /** Additional feed only: no floating frame, document title, or fullscreen control. */
-export function AdditionalCameraPane({ printerId }: { printerId: number }) {
-  return <AdditionalCameraViewer printerId={printerId} pane />;
+export function AdditionalCameraPane({ printerId, initialToken }: { printerId: number; initialToken?: string }) {
+  return <AdditionalCameraViewer printerId={printerId} initialToken={initialToken} pane />;
 }

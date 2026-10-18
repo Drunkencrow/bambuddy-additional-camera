@@ -179,18 +179,19 @@ export function useCameraStreamToken() {
 }
 
 /** Read the shared token initially, but renew locally so Retry cannot reload other viewers. */
-export function useCameraStreamAccess() {
+export function useCameraStreamAccess(initialToken?: string) {
   const { authEnabled, loading, user, hasPermission } = useAuth();
   const allowed = !loading && (!authEnabled || (!!user && hasPermission('camera:view')));
   const query = useQuery({
     queryKey: ['camera-stream-token', user?.id ?? null],
     queryFn: () => api.getCameraStreamToken(),
-    enabled: allowed,
+    enabled: allowed && !initialToken,
     staleTime: 50 * 60 * 1000,
     retry: false,
   });
   const owner = user?.id ?? null;
-  const [renewed, setRenewed] = useState<{ owner: number | null; token: string; sharedToken?: string } | null>(null);
+  const [renewed, setRenewed] = useState<{ owner: number | null; token: string; sharedToken?: string } | null>(() =>
+    initialToken ? { owner, token: initialToken, sharedToken: query.data?.token } : null);
   const token = renewed?.owner === owner && renewed.sharedToken === query.data?.token ? renewed.token : query.data?.token;
   const renew = async () => {
     if (!allowed) return;

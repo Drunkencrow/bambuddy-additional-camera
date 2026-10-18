@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "Reconectando…",
+    expand: "Expandir",
+    minimize: "Minimizar",
+
+    overlay: "Sobreposição de câmera adicional",
+    resizeViewer: "Redimensionar visualizador da câmera",
+
+    error: "Falha na operação da câmera",
+    saved: "Câmera adicional salva",
+    friendlyName: "Nome amigável",
+    enabled: "Ativada",
+    cameraType: "Tipo de câmera",
+    usbDevice: "Dispositivo USB",
+    cameraUrl: "URL da câmera",
+    refreshUsb: "Atualizar dispositivos USB",
+    usbError: "Falha na descoberta USB. Você pode inserir o caminho do dispositivo manualmente.",
+    snapshotUrl: "URL de captura (opcional)",
+    rotation: "Rotação",
+    test: "Testar câmera",
+    remove: "Remover câmera",
+    working: "Processando…",
+    testSuccess: "Conexão com a câmera bem-sucedida",
+    testFailure: "Falha na conexão com a câmera",
+    coalesced: "Captura compartilhada; nenhuma nova conexão foi aberta.",
+    removeConfirm: "Remover a configuração de câmera adicional desta impressora?",
+    removed: "Câmera adicional removida",
+    description: "Configure uma câmera adicional por impressora.",
+    printer: "Impressora",
+    noAvailablePrinters: "Não há mais impressoras disponíveis para configurar",
+    selectPrinter: "Selecionar uma impressora",
+    printersError: "Falha ao carregar impressoras",
+    noPrinters: "Adicione uma impressora para configurar uma câmera adicional.",
+    permission: "É necessária permissão para modificar impressoras.",
+    loadError: "Falha ao carregar a configuração da câmera",
+    configured: "Câmeras adicionais configuradas",
+    viewerTitle: "Câmera adicional",
+  },
   // Navigation
   nav: {
     printers: 'Impressoras',
@@ -1915,6 +1953,7 @@ export default {
     general: 'Geral',
     // Tab names
     tabs: {
+      additionalCameras: "Câmeras adicionais",
       general: 'Geral',
       smartPlugs: 'Tomadas Inteligentes',
       sensors: 'Sensores',

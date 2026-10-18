@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "Reconnexion…",
+    expand: "Développer",
+    minimize: "Réduire",
+
+    overlay: "Superposition de caméra supplémentaire",
+    resizeViewer: "Redimensionner la vue caméra",
+
+    error: "Échec de l’opération de caméra",
+    saved: "Caméra supplémentaire enregistrée",
+    friendlyName: "Nom convivial",
+    enabled: "Activée",
+    cameraType: "Type de caméra",
+    usbDevice: "Périphérique USB",
+    cameraUrl: "URL de la caméra",
+    refreshUsb: "Actualiser les périphériques USB",
+    usbError: "Échec de la détection USB. Vous pouvez saisir le chemin du périphérique manuellement.",
+    snapshotUrl: "URL de capture (facultative)",
+    rotation: "Orientation",
+    test: "Tester la caméra",
+    remove: "Supprimer la caméra",
+    working: "Traitement en cours…",
+    testSuccess: "Connexion à la caméra réussie",
+    testFailure: "Échec de la connexion à la caméra",
+    coalesced: "Capture partagée ; aucune nouvelle connexion ouverte.",
+    removeConfirm: "Supprimer la configuration de caméra supplémentaire de cette imprimante ?",
+    removed: "Caméra supplémentaire supprimée",
+    description: "Configurez une caméra supplémentaire par imprimante.",
+    printer: "Imprimante",
+    noAvailablePrinters: "Aucune autre imprimante à configurer",
+    selectPrinter: "Sélectionner une imprimante",
+    printersError: "Échec du chargement des imprimantes",
+    noPrinters: "Ajoutez une imprimante pour configurer une caméra supplémentaire.",
+    permission: "L’autorisation de modifier les imprimantes est requise.",
+    loadError: "Échec du chargement de la configuration de caméra",
+    configured: "Caméras supplémentaires configurées",
+    viewerTitle: "Caméra supplémentaire",
+  },
   // Navigation
   nav: {
     printers: 'Imprimantes',
@@ -1915,6 +1953,7 @@ export default {
     general: 'Général',
     // Tab names
     tabs: {
+      additionalCameras: "Caméras supplémentaires",
       general: 'Général',
       smartPlugs: 'Prises connectées',
       sensors: 'Capteurs',

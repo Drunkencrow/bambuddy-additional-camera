@@ -29,6 +29,7 @@ const STALL_CHECK_INTERVAL = 5000; // Check every 5 seconds
 
 interface PrimaryCameraPaneProps {
   printerId: number;
+  initialToken?: string;
   presentation?: 'standalone' | 'window-pane' | 'embedded-pane';
   fullscreen?: boolean;
 }
@@ -46,7 +47,7 @@ export function PrimaryCameraPane(props: PrimaryCameraPaneProps) {
 }
 
 function AuthenticatedPrimaryPane(props: PrimaryCameraPaneProps) {
-  const access = useCameraStreamAccess();
+  const access = useCameraStreamAccess(props.initialToken);
   return <PrimaryCameraContent {...props} paneAccess={access} />;
 }
 
@@ -74,7 +75,7 @@ function PrimaryCameraContent({
   const { data: streamTokenData, isPending: streamTokenPending } = useQuery({
     queryKey: ['camera-stream-token', user?.id ?? null],
     queryFn: () => api.getCameraStreamToken(),
-    enabled: authEnabled ? !!user : true,
+    enabled: !paneAccess && (authEnabled ? !!user : true),
     staleTime: 50 * 60 * 1000,
   });
   const streamTokenValue = paneAccess ? paneAccess.token : (streamTokenData?.token ?? getStreamToken());

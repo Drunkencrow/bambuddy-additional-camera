@@ -514,12 +514,13 @@ describe('Additional Camera viewers', () => {
     const overlay = screen.getByRole('region', {
       name: 'Additional Camera overlay',
     });
-    await within(overlay).findByRole('img');
+    const ownedImage = await within(overlay).findByRole('img');
     const stock = screen
       .getAllByRole('img')
       .find((img) => img.getAttribute('src')?.includes('/camera/stream'))!
       .closest('.fixed') as HTMLElement;
     fireEvent.click(within(overlay).getByTitle('Minimize'));
+    expect(ownedImage.getAttribute('src')).toBeNull();
     expect(overlay).toHaveStyle({ width: '200px', height: '40px' });
     expect(within(overlay).queryByRole('img')).toBeNull();
     expect(within(overlay).queryByRole('separator')).toBeNull();
@@ -842,3 +843,26 @@ describe('Additional Camera viewers', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Snapshot' }));
   expect(screen.getByRole('button', { name: 'Snapshot' })).toHaveAttribute('aria-pressed', 'true');
  });
+
+it('releases the minimized request and pauses polling/recovery until expansion', async () => {
+  const status = vi.spyOn(api, 'getAdditionalCameraStatus');
+  mount(<AdditionalCameraOverlay printerId={1} onClose={() => {}} />);
+  const original = await image();
+  fireEvent.load(original);
+  const requests = status.mock.calls.length;
+  vi.useFakeTimers();
+  fireEvent.click(screen.getByTitle('Minimize'));
+  expect(original.getAttribute('src')).toBeNull();
+  cameraStatus.frames_recent = false;
+  await act(async () => { await vi.advanceTimersByTimeAsync(120000); });
+  expect(status).toHaveBeenCalledTimes(requests);
+  expect(screen.queryByRole('img')).toBeNull();
+  vi.useRealTimers();
+  cameraStatus.frames_recent = true;
+  fireEvent.click(screen.getByTitle('Expand'));
+  const expanded = await image();
+  expect(expanded).not.toBe(original);
+  expect(expanded.getAttribute('src')).toContain('/additional-camera/stream');
+  fireEvent.load(expanded);
+  expect(screen.queryByRole('alert')).toBeNull();
+});

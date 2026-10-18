@@ -31,7 +31,7 @@ export function BothCameraOverlay({
         minimized={minimized}
         headerActions={
           <>
-            <CameraMinimizeButton minimized={minimized} onToggle={() => setMinimized(!minimized)} />
+            <CameraMinimizeButton label={minimized ? t('additionalCameras.expand') : t('additionalCameras.minimize')} minimized={minimized} onToggle={() => setMinimized(!minimized)} />
             <button onClick={onClose} title={t('common.close')} className="p-1 rounded hover:bg-red-500/20">
               <X className="w-3.5 h-3.5 text-bambu-gray hover:text-red-600 dark:hover:text-red-400" />
             </button>

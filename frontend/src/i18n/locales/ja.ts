@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "再接続中…",
+    expand: "展開",
+    minimize: "最小化",
+
+    overlay: "追加カメラのオーバーレイ",
+    resizeViewer: "カメラビューのサイズを変更",
+
+    error: "カメラ操作に失敗しました",
+    saved: "追加カメラを保存しました",
+    friendlyName: "表示名",
+    enabled: "有効",
+    cameraType: "カメラの種類",
+    usbDevice: "USBデバイス",
+    cameraUrl: "カメラURL",
+    refreshUsb: "USBデバイスを更新",
+    usbError: "USB検出に失敗しました。デバイスのパスを手動で入力できます。",
+    snapshotUrl: "スナップショットURL（任意）",
+    rotation: "回転",
+    test: "カメラをテスト",
+    remove: "カメラを削除",
+    working: "処理中…",
+    testSuccess: "カメラへの接続に成功しました",
+    testFailure: "カメラへの接続に失敗しました",
+    coalesced: "共有キャプチャを使用しました。新しい接続は開いていません。",
+    removeConfirm: "このプリンターの追加カメラ設定を削除しますか？",
+    removed: "追加カメラを削除しました",
+    description: "プリンターごとに追加カメラを1台設定できます。",
+    printer: "プリンター",
+    noAvailablePrinters: "設定できるプリンターはありません",
+    selectPrinter: "プリンターを選択",
+    printersError: "プリンターの読み込みに失敗しました",
+    noPrinters: "追加カメラを設定するにはプリンターを追加してください。",
+    permission: "プリンターを変更する権限が必要です。",
+    loadError: "カメラ設定の読み込みに失敗しました",
+    configured: "設定済みの追加カメラ",
+    viewerTitle: "追加カメラ",
+  },
   // Navigation
   nav: {
     printers: 'プリンター',
@@ -1915,6 +1953,7 @@ export default {
     general: '一般',
     // Tab names
     tabs: {
+      additionalCameras: "追加カメラ",
       general: '一般',
       smartPlugs: 'スマートプラグ',
       sensors: 'センサー',

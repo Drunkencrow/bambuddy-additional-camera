@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useFloatingOverlayFocus } from '../hooks/useFloatingOverlayFocus';
 import { cameraOverlaySize } from './cameraOverlaySize';
 import {
@@ -23,7 +24,7 @@ export function FloatingCameraFrame({
   children,
   minimized = false,
   defaultSize = { width: 430, height: 320 },
-  label = 'Additional Camera overlay',
+  label,
 }: {
   identity: string;
   storageKey: string;
@@ -33,6 +34,7 @@ export function FloatingCameraFrame({
   defaultSize?: { width: number; height: number };
   label?: string;
 }) {
+  const { t } = useTranslation();
   const { zIndex, ...focusHandlers } = useFloatingOverlayFocus(identity);
   const clamp = (value: Geometry): Geometry => ({
     x: Math.max(0, Math.min(value.x, window.innerWidth - 100)),
@@ -148,7 +150,7 @@ export function FloatingCameraFrame({
   return (
     <section
       {...focusHandlers}
-      aria-label={label}
+      aria-label={label ?? t('additionalCameras.overlay')}
       data-camera-overlay={identity}
       className="fixed z-40 rounded-lg shadow-2xl border border-bambu-dark-tertiary bg-bambu-dark-secondary overflow-hidden"
       style={{
@@ -170,7 +172,7 @@ export function FloatingCameraFrame({
       {!minimized && (
         <div
           role="separator"
-          aria-label="Resize camera viewer"
+          aria-label={t('additionalCameras.resizeViewer')}
           aria-orientation="horizontal"
           className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize no-drag hover:bg-white/10 rounded-tl transition-colors touch-none"
           onPointerDown={(event) => {

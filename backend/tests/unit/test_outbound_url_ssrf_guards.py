@@ -568,8 +568,15 @@ def _request_body_url_fields() -> set[tuple[str, str]]:
 
 
 # Guarded: the handler (or the service it calls) puts the value through one of
-# the two tiers before any request is issued.
+# the two tiers or the camera-specific scheme/device guard before any request is issued.
 GUARDED_BODY_URLS = {
+    # Additional media routes validate via validate_media_configuration; the
+    # unsaved test uses external_camera.capture_frame. Every transport applies
+    # _sanitize_camera_url (HTTP/RTSP) or _safe_usb_device_path before opening
+    # the source. Keep the existing camera policy, including LAN access.
+    ("AdditionalCameraSave", "camera_url"),
+    ("AdditionalCameraSave", "snapshot_url"),
+    ("AdditionalCameraTest", "camera_url"),
     ("AppSettingsUpdate", "bambu_studio_api_url"),
     ("AppSettingsUpdate", "ha_url"),
     ("AppSettingsUpdate", "obico_ml_url"),

@@ -102,7 +102,7 @@ function CameraForm({
             >
               <option value="mjpeg">MJPEG</option>
               <option value="rtsp">RTSP</option>
-              <option value="snapshot">Snapshot</option>
+              <option value="snapshot">{t('camera.snapshot')}</option>
               <option value="usb">USB</option>
             </select>
           </label>

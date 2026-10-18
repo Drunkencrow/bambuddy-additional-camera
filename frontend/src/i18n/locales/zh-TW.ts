@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "正在重新連線…",
+    expand: "展開",
+    minimize: "最小化",
+
+    overlay: "附加相機浮層",
+    resizeViewer: "調整相機檢視器大小",
+
+    error: "相機操作失敗",
+    saved: "附加相機已儲存",
+    friendlyName: "顯示名稱",
+    enabled: "已啟用",
+    cameraType: "相機類型",
+    usbDevice: "USB 裝置",
+    cameraUrl: "相機 URL",
+    refreshUsb: "重新整理 USB 裝置",
+    usbError: "USB 探索失敗。您可以手動輸入裝置路徑。",
+    snapshotUrl: "快照 URL（選填）",
+    rotation: "旋轉",
+    test: "測試相機",
+    remove: "移除相機",
+    working: "處理中…",
+    testSuccess: "相機連線成功",
+    testFailure: "相機連線失敗",
+    coalesced: "共用擷取；未開啟新連線。",
+    removeConfirm: "移除此印表機的附加相機設定？",
+    removed: "附加相機已移除",
+    description: "為每台印表機設定一個附加相機。",
+    printer: "印表機",
+    noAvailablePrinters: "沒有其他可設定的印表機",
+    selectPrinter: "選擇印表機",
+    printersError: "無法載入印表機",
+    noPrinters: "請新增印表機以設定附加相機。",
+    permission: "需要修改印表機的權限。",
+    loadError: "無法載入相機設定",
+    configured: "已設定的附加相機",
+    viewerTitle: "附加相機",
+  },
   // Navigation
   nav: {
     printers: '印表機',
@@ -1915,6 +1953,7 @@ export default {
     general: '通用',
     // Tab names
     tabs: {
+      additionalCameras: "附加相機",
       general: '通用',
       smartPlugs: '智慧插座',
       sensors: '感測器',

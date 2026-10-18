@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "Reconnecting…",
+    expand: "Expand",
+    minimize: "Minimize",
+
+    overlay: "Additional Camera overlay",
+    resizeViewer: "Resize camera viewer",
+
+    error: "Camera operation failed",
+    saved: "Additional Camera saved",
+    friendlyName: "Friendly Name",
+    enabled: "Enabled",
+    cameraType: "Camera Type",
+    usbDevice: "USB Device",
+    cameraUrl: "Camera URL",
+    refreshUsb: "Refresh USB devices",
+    usbError: "USB discovery failed. You can enter a device path manually.",
+    snapshotUrl: "Snapshot URL (optional)",
+    rotation: "Rotation",
+    test: "Test Camera",
+    remove: "Remove Camera",
+    working: "Working…",
+    testSuccess: "Camera connection successful",
+    testFailure: "Camera connection failed",
+    coalesced: "Shared capture; a new connection was not opened.",
+    removeConfirm: "Remove this printer’s Additional Camera configuration?",
+    removed: "Additional Camera removed",
+    description: "Configure one additional camera per printer.",
+    printer: "Printer",
+    noAvailablePrinters: "No remaining printers available to configure",
+    selectPrinter: "Select a printer",
+    printersError: "Failed to load printers",
+    noPrinters: "Add a printer to configure an additional camera.",
+    permission: "Printer modification permission is required.",
+    loadError: "Failed to load camera configuration",
+    configured: "Configured Additional Cameras",
+    viewerTitle: "Additional Camera",
+  },
   // Navigation
   nav: {
     printers: 'Printers',
@@ -1934,6 +1972,7 @@ export default {
     general: 'General',
     // Tab names
     tabs: {
+      additionalCameras: "Additional Cameras",
       general: 'General',
       smartPlugs: 'Smart Plugs',
       sensors: 'Sensors',

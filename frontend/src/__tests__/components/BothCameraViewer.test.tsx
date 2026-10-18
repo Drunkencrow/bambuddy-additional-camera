@@ -567,3 +567,44 @@ it('keeps the Both window header separate from its labelled pane headers', async
   expect(within(pane('additional')).getByRole('heading', { name: 'Overhead view' })).toBeInTheDocument();
   expect(screen.getByRole('separator', { name: 'Resize camera viewer' })).toBeInTheDocument();
 });
+
+
+it.each(['rejected', 'missing'] as const)('recovers Both admission after a %s token without global publication or a renewal loop', async (failure) => {
+  let minted = 0;
+  let statusCalls = 0;
+  setStreamToken('existing-stock-token');
+  server.use(
+    http.post('*/api/v1/printers/camera/stream-token', () => {
+      minted++;
+      return failure === 'missing' && minted === 1
+        ? HttpResponse.json({ detail: 'Temporarily unavailable' }, { status: 503 })
+        : HttpResponse.json({ token: minted === 1 ? 'rejected' : 'recovered' });
+    }),
+    http.get('*/api/v1/printers/:id/additional-camera/status', ({ request }) => {
+      statusCalls++;
+      return ['recovered', 'scheduled'].includes(new URL(request.url).searchParams.get('token') ?? '')
+        ? HttpResponse.json(healthy)
+        : HttpResponse.json({ detail: 'Token expired' }, { status: 401 });
+    }),
+  );
+  viewer();
+  const retry = await screen.findByRole('button', { name: 'Retry' });
+  expect(minted).toBe(1);
+  expect(statusCalls).toBe(failure === 'missing' ? 0 : 1);
+  expect(screen.queryByRole('img')).toBeNull();
+  fireEvent.click(retry);
+  await feeds();
+  expect(within(pane('primary')).getByRole('img').getAttribute('src')).toContain('token=recovered');
+  expect(within(pane('additional')).getByRole('img').getAttribute('src')).toContain('token=recovered');
+  expect(minted).toBe(2);
+  expect(statusCalls).toBeLessThanOrEqual(3);
+  const { getStreamToken } = await import('../../api/client');
+  expect(getStreamToken()).toBe('existing-stock-token');
+  // A later App refresh supersedes the local admission seed normally.
+  act(() => clients[0].setQueryData(['camera-stream-token', 3], { token: 'scheduled', expires_in: 3600 }));
+  await waitFor(() => {
+    expect(within(pane('primary')).getByRole('img').getAttribute('src')).toContain('token=scheduled');
+    expect(within(pane('additional')).getByRole('img').getAttribute('src')).toContain('token=scheduled');
+  });
+  expect(minted).toBe(2);
+});

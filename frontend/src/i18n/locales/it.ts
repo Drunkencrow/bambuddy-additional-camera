@@ -1,4 +1,42 @@
 export default {
+  additionalCameras: {
+    reconnecting: "Riconnessione…",
+    expand: "Espandi",
+    minimize: "Riduci a icona",
+
+    overlay: "Sovrapposizione videocamera aggiuntiva",
+    resizeViewer: "Ridimensiona la vista della videocamera",
+
+    error: "Operazione della videocamera non riuscita",
+    saved: "Videocamera aggiuntiva salvata",
+    friendlyName: "Nome descrittivo",
+    enabled: "Abilitata",
+    cameraType: "Tipo di videocamera",
+    usbDevice: "Dispositivo USB",
+    cameraUrl: "URL della videocamera",
+    refreshUsb: "Aggiorna dispositivi USB",
+    usbError: "Rilevamento USB non riuscito. Puoi inserire manualmente il percorso del dispositivo.",
+    snapshotUrl: "URL istantanea (facoltativo)",
+    rotation: "Rotazione",
+    test: "Prova videocamera",
+    remove: "Rimuovi videocamera",
+    working: "Operazione in corso…",
+    testSuccess: "Connessione alla videocamera riuscita",
+    testFailure: "Connessione alla videocamera non riuscita",
+    coalesced: "Acquisizione condivisa; nessuna nuova connessione aperta.",
+    removeConfirm: "Rimuovere la configurazione della videocamera aggiuntiva di questa stampante?",
+    removed: "Videocamera aggiuntiva rimossa",
+    description: "Configura una videocamera aggiuntiva per stampante.",
+    printer: "Stampante",
+    noAvailablePrinters: "Nessuna altra stampante disponibile da configurare",
+    selectPrinter: "Seleziona una stampante",
+    printersError: "Caricamento delle stampanti non riuscito",
+    noPrinters: "Aggiungi una stampante per configurare una videocamera aggiuntiva.",
+    permission: "È necessaria l’autorizzazione per modificare le stampanti.",
+    loadError: "Caricamento della configurazione della videocamera non riuscito",
+    configured: "Videocamere aggiuntive configurate",
+    viewerTitle: "Videocamera aggiuntiva",
+  },
   // Navigation
   nav: {
     printers: 'Stampanti',
@@ -1915,6 +1953,7 @@ export default {
     general: 'Generale',
     // Tab names
     tabs: {
+      additionalCameras: "Videocamere aggiuntive",
       general: 'Generale',
       smartPlugs: 'Prese smart',
       sensors: 'Sensori',

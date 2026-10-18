@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Camera, Fullscreen, GripVertical, Maximize, Minimize } from 'lucide-react';
-import { api } from '../api/client';
+import { ApiError, api } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useCameraStreamAccess } from '../hooks/useCameraStreamToken';
 import { cameraViewerIdentity } from '../utils/cameraIdentity';
@@ -29,7 +29,7 @@ function ConfiguredBothCameraViewer({ printerId, windowMode = false, minimized =
   const { t } = useTranslation();
   const access = useCameraStreamAccess();
   const valid = Number.isSafeInteger(printerId) && printerId > 0;
-  const [admitted, setAdmitted] = useState(false);
+  const [admitted, setAdmitted] = useState<{ token?: string } | null>(null);
   const status = useQuery({
     queryKey: ['additional-camera-viewer-status', cameraViewerIdentity('additional', printerId), access.token],
     queryFn: () => api.getAdditionalCameraStatus(printerId, access.token),
@@ -38,14 +38,18 @@ function ConfiguredBothCameraViewer({ printerId, windowMode = false, minimized =
     refetchOnWindowFocus: false,
   });
   useEffect(() => {
-    if (status.data?.configured && status.data.enabled) setAdmitted(true);
-  }, [status.data]);
+    if (!admitted && status.data?.configured && status.data.enabled) setAdmitted({ token: access.token });
+  }, [admitted, status.data, access.token]);
   const { data: printer } = useQuery({
     queryKey: ['printer', printerId],
     queryFn: () => api.getPrinter(printerId),
     enabled: valid && access.ready,
   });
-  const title = `${printer?.name || `Printer ${printerId}`} — ${t('camera.bothCameras', 'Both Cameras')}`;
+  const retryAdmission = () => {
+    if (access.unavailable || (status.error instanceof ApiError && status.error.status === 401)) void access.renew();
+    else if (access.ready) void status.refetch();
+  };
+  const title = `${printer?.name || `${t('additionalCameras.printer')} ${printerId}`} — ${t('camera.bothCameras', 'Both Cameras')}`;
   const root = useRef<HTMLDivElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   useEffect(() => {
@@ -97,16 +101,22 @@ function ConfiguredBothCameraViewer({ printerId, windowMode = false, minimized =
           <div className="both-camera-panes flex-1 min-h-0 min-w-0">
             <PrimaryCameraPane
               printerId={printerId}
+              initialToken={admitted.token}
               presentation={windowMode ? 'window-pane' : 'embedded-pane'}
               fullscreen={fullscreen}
             />
-            <AdditionalCameraPane printerId={printerId} />
+            <AdditionalCameraPane printerId={printerId} initialToken={admitted.token} />
           </div>
         ) : (
-          <div role="status" className="flex-1 flex items-center justify-center p-4 text-sm text-bambu-gray">
+          <div role="status" className="flex-1 flex flex-col gap-3 items-center justify-center p-4 text-sm text-bambu-gray">
             {!valid || access.unavailable || status.isError || status.data
               ? t('camera.cameraUnavailable')
               : t('camera.connectingToCamera')}
+            {valid && (access.unavailable || status.isError || status.data) && (
+              <button type="button" onClick={retryAdmission} className="px-4 py-2 bg-bambu-green text-white rounded hover:bg-bambu-green/80">
+                {t('camera.retry')}
+              </button>
+            )}
           </div>
         ))}
     </div>
