@@ -387,8 +387,8 @@ describe('PrintersPage — camera split button', () => {
     const additional = await screen.findByLabelText('Additional Camera');
     const both = screen.getByLabelText('Both Cameras');
     const stock = await cameraIcon();
-    expect(additional.querySelector('.lucide-camera')).not.toBeNull();
-    expect(both.querySelector('.lucide-layout-grid')).not.toBeNull();
+    expect(additional.querySelector('svg[data-camera-icon="additional"]')).toHaveAttribute('aria-hidden', 'true');
+    expect(both.querySelector('svg[data-camera-icon="both"]')).toHaveAttribute('aria-hidden', 'true');
     expect(stock.querySelector('.lucide-video')).not.toBeNull();
     expect(additional.textContent).toBe('');
     expect(both.textContent).toBe('');

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Camera, LayoutGrid, ChevronDown, ExternalLink, PictureInPicture2 } from 'lucide-react';
+import { ChevronDown, ExternalLink, PictureInPicture2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ApiError, api } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,6 +8,7 @@ import { useCameraStreamAccess } from '../hooks/useCameraStreamToken';
 import { openCameraWindow, type CameraViewMode } from '../utils/camera';
 import { Button } from './Button';
 import { ContextMenu } from './ContextMenu';
+import { AdditionalCameraIcon, BothCamerasIcon } from './AuxiliaryCameraIcons';
 
 type Source = 'additional' | 'both';
 export interface AuxiliaryCameraControlsProps {
@@ -49,7 +50,7 @@ function CameraControl({ source, printerId, connected, viewMode, onSelectViewMod
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
   const allowed = connected && hasPermission('camera:view');
   const title = source === 'additional' ? t('camera.additionalCamera') : t('camera.bothCameras');
-  const Icon = source === 'additional' ? Camera : LayoutGrid;
+  const Icon = source === 'additional' ? AdditionalCameraIcon : BothCamerasIcon;
   const open = (mode: CameraViewMode) => {
     if (!allowed) return;
     if (mode === 'embedded') onOpenEmbedded(source, printerId);
